@@ -61,6 +61,12 @@ params:
     default: ${STORAGE_BUCKET}
     required: false
 
+  - param: FOLDER_PATH
+    label: Cloud Storage folder (Not including heading slash)
+    description: Which folder do you want to listen to upload changes? e.g `photos` . This is optional. If specified, this extension will only run when a file is uploaded in the specified folder path.
+    type: string
+    required: false
+
   - param: CLIENT_EMAIL
     label: Service Account Client Email
     description: >-
@@ -83,7 +89,7 @@ params:
     description: >-
       The ID of the folder in google drive where you want to export your files.
       This can be found in the url after creating or accessing the folder e.g `https://drive.google.com/drive/u/0/folders/{FOLDER_ID}`
-    type: secret
+    type: string
     required: true
     immutable: false
 
