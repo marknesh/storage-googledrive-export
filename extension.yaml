@@ -42,10 +42,9 @@ resources:
     description: >-
       Storage triggered function that exports a created file to google drive.
     properties:
-      # httpsTrigger is used for an HTTP triggered function.
       eventTrigger:
         eventType: google.storage.object.finalize
-        resource: projects/_/buckets/${STORAGE_BUCKET}
+        resource: projects/_/buckets/${BUCKET_NAME}
 
       runtime: 'nodejs16'
 
@@ -53,12 +52,36 @@ resources:
 # Learn more in the docs:
 # https://firebase.google.com/docs/extensions/reference/extension-yaml#params-field
 params:
-  - param: GREETING
-    label: Greeting for the world
+  - param: BUCKET_NAME
+    label: Cloud Storage bucket
+    description: Which bucket do you want use? This field is optional, we will use the default bucket if left empty.
+    type: selectResource
+    resourceType: storage.googleapis.com/Bucket
+    default: ${STORAGE_BUCKET}
+    required: false
+
+  - param: CLIENT_EMAIL
+    label: Service Account Client Email
     description: >-
-      What do you want to say to the world?
-      For example, Hello world? or What's up, world?
-    type: string
-    default: Hello
+      What is the client email from your service account?
+    type: secret
+    required: true
+    immutable: false
+
+  - param: PRIVATE_KEY
+    label: Service Account Private Key
+    description: >-
+      What is the private key from your service account?
+      Please paste the private key from your service account JSON file without making any changes. e.g `-----BEGIN PRIVATE KEY-----\nPRIVATE KEY\n-----END PRIVATE KEY-----\n`
+    type: secret
+    required: true
+    immutable: false
+
+  - param: FOLDER_ID
+    label: Google drive Folder ID
+    description: >-
+      The ID of the folder in google drive where you want to export your files.
+      This can be found in the url after creating or accessing the folder e.g `https://drive.google.com/drive/u/0/folders/{FOLDER_ID}`
+    type: secret
     required: true
     immutable: false
