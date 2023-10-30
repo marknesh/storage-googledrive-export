@@ -3,7 +3,7 @@ import { authorize, uploadFile } from './utils';
 
 const FOLDER_PATH = process.env.FOLDER_PATH;
 
-exports.exportToDrive = functions.storage.object().onFinalize((object) => {
+export const exportToDrive = functions.storage.object().onFinalize((object) => {
   /* Check if user specified a FOLDER_PATH parameter */
   if (FOLDER_PATH) {
     /* Check if object name starts with the folder path */
@@ -24,18 +24,29 @@ exports.exportToDrive = functions.storage.object().onFinalize((object) => {
         .then((authClient) => uploadFile(authClient, renamedObject))
         .catch((error) => {
           functions.logger.warn(error.message);
+          return error.message;
         });
     } else {
       functions.logger.warn(
-        `Please upload files to the folder path (${FOLDER_PATH}) as you specified in the FOLDER_PATH parameter, in order for the extension to work.`
+        `Please upload files to the folder path (${FOLDER_PATH})
+         as you specified in the FOLDER_PATH parameter, in order for the extension to work.`
       );
-      return null;
+      return `Please upload files to the folder path (${FOLDER_PATH}) as
+         you specified in the FOLDER_PATH parameter, in order for the extension to work.`;
     }
   } else {
     return authorize()
       .then((authClient) => uploadFile(authClient, object))
       .catch((error) => {
         functions.logger.warn(error.message);
+        return error.message;
       });
   }
 });
+
+export const createDoc = functions.firestore
+  .document('/messages/{uid}')
+  .onCreate(async (snap) => {
+    console.log(snap.data());
+    return await snap.ref.set({ age: 23 });
+  });
