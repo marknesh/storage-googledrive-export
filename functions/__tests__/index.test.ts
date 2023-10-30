@@ -21,5 +21,5 @@ describe('export file to google drive', () => {
     const response = await wrapped(objectMetadata);
 
     expect(response).toEqual('File uploaded successfully');
-  });
+  }, 10000);
 });
