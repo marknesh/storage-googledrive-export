@@ -1,5 +1,5 @@
 name: storage-googledrive-export
-version: 0.0.2
+version: 0.0.3
 specVersion: v1beta
 
 displayName: Export Storage Files to Google Drive
@@ -23,6 +23,10 @@ billingRequired: true
 apis:
   - apiName: drive.googleapis.com
     reason: Exports files from your cloud storage bucket to google drive.
+
+roles:
+  - role: storage.objectViewer
+    reason: Allows the extension to view objects from the storage bucket.
 
 resources:
   - name: exportToDrive
