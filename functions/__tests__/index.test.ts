@@ -1,14 +1,16 @@
 import 'jest';
 import * as functions from 'firebase-functions-test';
 import { exportToDrive } from '../src/index';
+import { WrappedFunction } from 'firebase-functions-test/lib/v1';
+import { ObjectMetadata } from 'firebase-functions/v1/storage';
 
 const testEnv = functions();
 
 describe('export file to google drive', () => {
-  let wrapped: any;
+  let wrapped: WrappedFunction<ObjectMetadata>;
 
   beforeAll(() => {
-    wrapped = testEnv.wrap(exportToDrive);
+    wrapped = testEnv.wrap(exportToDrive) as WrappedFunction<ObjectMetadata>;
   });
 
   test('it should export a file to google drive', async () => {
