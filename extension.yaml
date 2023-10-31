@@ -1,13 +1,11 @@
 name: storage-googledrive-export
-version: 0.0.1 # Follow semver versioning
-specVersion: v1beta # Version of the Firebase Extensions specification
+version: 0.0.1
+specVersion: v1beta
 
-# Friendly display name for your extension (~3-5 words)
-displayName: Export storage files to google drive
+displayName: Export Storage Files to Google Drive
 
-# Brief description of the task your extension performs (~1 sentence)
 description: >-
-  Exports storage files to google drive in realtime.
+  Exports cloud storage files to google drive in real-time.
 
 author:
   authorName: Mark
@@ -16,7 +14,7 @@ author:
 icon: icon.png
 tags: [utilities]
 
-license: Apache-2.0 # https://spdx.org/licenses/
+license: Apache-2.0
 
 sourceUrl: https://github.com/marknesh/storage-googledrive-export
 
@@ -30,7 +28,7 @@ resources:
   - name: exportToDrive
     type: firebaseextensions.v1beta.function
     description: >-
-      Storage triggered function that exports a created file to google drive.
+      Storage triggered function that exports an uploaded file to google drive.
     properties:
       location: ${param:LOCATION}
       eventTrigger:
