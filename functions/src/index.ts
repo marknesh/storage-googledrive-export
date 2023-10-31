@@ -4,7 +4,6 @@ import { authorize, uploadFile } from './utils';
 const FOLDER_PATH = process.env.FOLDER_PATH;
 
 export const exportToDrive = functions.storage.object().onFinalize((object) => {
-  functions.logger.info(object);
   /* Check if user specified a FOLDER_PATH parameter */
   if (FOLDER_PATH) {
     /* Check if object name starts with the folder path */

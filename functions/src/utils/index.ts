@@ -4,6 +4,12 @@ import { google } from 'googleapis';
 import axios from 'axios';
 import { Readable } from 'node:stream';
 import { JWT } from 'googleapis-common';
+import { initializeApp } from 'firebase-admin/app';
+import { getDownloadURL, getStorage } from 'firebase-admin/storage';
+
+initializeApp();
+
+const storage = getStorage();
 
 config();
 
@@ -41,11 +47,12 @@ async function uploadFile(
   authClient: JWT,
   object: functions.storage.ObjectMetadata
 ) {
-  if (object.mediaLink) {
+  if (object.name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
-
+    const fileRef = await storage.bucket().file(object.name);
+    const url = await getDownloadURL(fileRef);
     return axios
-      .get(object.mediaLink, {
+      .get(url, {
         responseType: 'stream',
       })
       .then(async (response) => {

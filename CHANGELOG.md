@@ -13,3 +13,7 @@
 ## Version 0.0.4
 
 - Test extension link
+
+## Version 0.0.5
+
+- Fixed storage unauthorized error
