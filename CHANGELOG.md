@@ -18,6 +18,6 @@
 
 - Fixed storage unauthorized error
 
-## Version 0.0.6-beta.0
+## Version 0.0.6
 
 - Add user role to extension
