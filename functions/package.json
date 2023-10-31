@@ -5,7 +5,7 @@
     "lint:fix": "eslint \"src/**/*\" --fix",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "tsc && cd integration-tests && firebase emulators:exec 'jest' --project demo-test",
+    "test": "tsc && cd __tests__ && tsc && cd ../integration-tests && firebase emulators:exec 'jest' --project demo-test",
     "dev": "cd integration-tests && npm run build:watch | firebase emulators:start --project demo-test"
   },
   "main": "lib/src/index.js",

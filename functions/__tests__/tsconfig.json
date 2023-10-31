@@ -3,12 +3,12 @@
     "module": "commonjs",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "outDir": "lib",
+    "outDir": "../lib",
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "compileOnSave": true,
-  "include": ["src"]
+  "include": ["**/*.test.ts"]
 }
