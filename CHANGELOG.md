@@ -9,3 +9,7 @@
 ## Version 0.0.3
 
 - Add extension role
+
+## Version 0.0.4
+
+- Test extension link
