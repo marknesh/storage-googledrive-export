@@ -28,11 +28,9 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
         });
     } else {
       functions.logger.warn(
-        `Please upload files to the folder path (${FOLDER_PATH})
-         as you specified in the FOLDER_PATH parameter, in order for the extension to work.`
+        `Please upload files to the folder path (${FOLDER_PATH}) as you specified in the FOLDER_PATH parameter, in order for the extension to work.`
       );
-      return `Please upload files to the folder path (${FOLDER_PATH}) as
-         you specified in the FOLDER_PATH parameter, in order for the extension to work.`;
+      return `Please upload files to the folder path (${FOLDER_PATH}) as you specified in the FOLDER_PATH parameter, in order for the extension to work.`;
     }
   } else {
     return authorize()
@@ -43,10 +41,3 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
       });
   }
 });
-
-export const createDoc = functions.firestore
-  .document('/messages/{uid}')
-  .onCreate(async (snap) => {
-    console.log(snap.data());
-    return await snap.ref.set({ age: 23 });
-  });
