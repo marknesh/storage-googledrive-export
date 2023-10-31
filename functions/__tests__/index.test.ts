@@ -1,3 +1,8 @@
+/*
+ * Before testing, please create a .env file inside the integrations folder.
+ * An example .env file is also in the integrations folder
+ *
+ */
 import 'jest';
 import * as functions from 'firebase-functions-test';
 import { exportToDrive } from '../src/index';
