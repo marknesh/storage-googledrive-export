@@ -2,7 +2,15 @@ Use this extension to export files from your cloud storage bucket to google driv
 
 When a file is uploaded to cloud storage, this extension uploads that file to google drive.
 
-# Billing
+## Before installing the extension
+
+> Enable Google Drive api for your project and create a Service Account before installing this extension.
+
+- Create a folder in Google Drive and **share** access to that folder with the Service Account Client Email.
+
+- Now you are ready to install the extension.
+
+## Billing
 
 This extension uses other Firebase or Google Cloud Platform services which may have associated charges:
 

@@ -21,3 +21,7 @@
 ## Version 0.0.6
 
 - Add user role to extension
+
+## Version 0.0.7
+
+- Update documentation
