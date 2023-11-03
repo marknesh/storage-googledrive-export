@@ -25,3 +25,7 @@
 ## Version 0.0.7
 
 - Update documentation
+
+## Version 0.0.8
+
+- Use default service account to authenticate
