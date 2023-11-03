@@ -25,7 +25,7 @@ apis:
     reason: Exports files from your Cloud Storage bucket to Google Drive.
 
 roles:
-  - role: storage.admin
+  - role: storage.objectAdmin
     reason: Allows the extension to export files in Cloud Storage to Google Drive.
 
 resources:
@@ -55,23 +55,6 @@ params:
     description: Which folder do you want to listen to upload changes? e.g `photos` . This is optional. If specified, this extension will only run when a file is uploaded in the specified folder path.
     type: string
     required: false
-
-  - param: CLIENT_EMAIL
-    label: Service Account Client Email
-    description: >-
-      What is the client email from your service account?
-    type: secret
-    required: true
-    immutable: false
-
-  - param: PRIVATE_KEY
-    label: Service Account Private Key
-    description: >-
-      What is the private key from your service account?
-      Please paste the private key from your service account JSON file without making any changes. e.g `-----BEGIN PRIVATE KEY-----\nPRIVATE KEY\n-----END PRIVATE KEY-----\n`
-    type: secret
-    required: true
-    immutable: false
 
   - param: FOLDER_ID
     label: Google drive Folder ID

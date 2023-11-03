@@ -3,7 +3,6 @@ import * as functions from 'firebase-functions';
 import { google } from 'googleapis';
 import axios from 'axios';
 import { Readable } from 'node:stream';
-import { JWT } from 'googleapis-common';
 import { initializeApp } from 'firebase-admin/app';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 
@@ -15,25 +14,21 @@ config();
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
-const CLIENT_EMAIL = process.env.CLIENT_EMAIL;
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const FOLDER_ID = process.env.FOLDER_ID as string;
 
 /**
- * Authorize with service account and get the JWT client
+ * Authorize with default service account and get the JWT client
  *
  * @return {JWT} jwtClient
  *
  */
 async function authorize() {
-  const jwtClient = new google.auth.JWT(
-    CLIENT_EMAIL,
-    '',
-    PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    SCOPES
-  );
-  await jwtClient.authorize();
-  return jwtClient;
+  const JWTClient = await google.auth.getClient({
+    scopes: SCOPES,
+    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  });
+
+  return JWTClient;
 }
 
 /**
@@ -44,7 +39,7 @@ async function authorize() {
  * @return {string} File uploaded successfully
  */
 async function uploadFile(
-  authClient: JWT,
+  authClient: any,
   object: functions.storage.ObjectMetadata
 ) {
   if (object.name) {
