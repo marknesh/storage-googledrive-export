@@ -25,7 +25,7 @@ apis:
     reason: Exports files from your Cloud Storage bucket to Google Drive.
 
 roles:
-  - role: storage.objectAdmin
+  - role: storage.admin
     reason: Allows the extension to export files in Cloud Storage to Google Drive.
 
 resources:
