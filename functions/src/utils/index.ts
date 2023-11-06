@@ -25,7 +25,6 @@ const FOLDER_ID = process.env.FOLDER_ID as string;
 async function authorize() {
   const JWTClient = await google.auth.getClient({
     scopes: SCOPES,
-    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
   });
 
   functions.logger.info(JWTClient);
