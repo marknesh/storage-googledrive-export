@@ -4,8 +4,6 @@ When a file is uploaded to cloud storage, this extension uploads that file to go
 
 ## Before installing the extension
 
-> Enable Google Drive API for your project before installing this extension.
-
 - Create a folder in Google Drive and **share** access to that folder with the **Extension Service Account Email**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
 
 - Now you are ready to install the extension.
