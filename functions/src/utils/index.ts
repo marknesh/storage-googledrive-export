@@ -28,6 +28,8 @@ async function authorize() {
     keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
   });
 
+  functions.logger.info(JWTClient);
+
   return JWTClient;
 }
 
