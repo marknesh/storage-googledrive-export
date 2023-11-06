@@ -8,7 +8,6 @@
 
 ## Before installing the extension
 
-
 > Enable Google Drive API for your project before installing this extension.
 
 - Create a folder in Google Drive and **share** access to that folder with the **Extension Service Account Email**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
@@ -30,10 +29,6 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 - BUCKET_NAME: Which bucket do you want use? This field is `optional` , we will use the default bucket if left empty.
 
 - FOLDER_PATH: Which folder do you want to listen to upload changes? e.g `photos` . This field is `optional` . If specified, this extension will only run when a file is uploaded in the specified folder path.
-
-- CLIENT_EMAIL: What is the client email from your service account?
-
-- PRIVATE_KEY: What is the private key from your service account? Please paste the private key from your service account JSON file without making any changes. e.g `-----BEGIN PRIVATE KEY-----\nPRIVATE KEY\n-----END PRIVATE KEY-----\n`
 
 - FOLDER_ID: The ID of the folder in google drive where you want to export your files.This can be found in the url after creating or accessing the folder e.g `https://drive.google.com/drive/u/0/folders/{FOLDER_ID}`
 
