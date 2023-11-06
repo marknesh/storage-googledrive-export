@@ -20,7 +20,7 @@ This extension uses other Firebase or Google Cloud Platform services which may h
 
 - Cloud Functions
 - Cloud Storage
-- Google Drive Api
+- Google Drive API
 
 To install an extension, your project must be on the [Blaze (pay as you go) plan](https://firebase.google.com/pricing)
 
