@@ -12,7 +12,7 @@ const storage = getStorage();
 
 config();
 
-const SCOPES = ['https://www.googleapis.com/auth/drive'];
+const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
 const FOLDER_ID = process.env.FOLDER_ID as string;
 
