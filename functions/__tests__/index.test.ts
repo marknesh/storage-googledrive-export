@@ -14,6 +14,10 @@ const storage = getStorage();
 
 const testEnv = functions();
 
+const FOLDER_PATH = process.env.FOLDER_PATH;
+
+const filePath = FOLDER_PATH ? `${FOLDER_PATH}/icon.png` : 'icon.png';
+
 describe('upload file to storage and export to google drive', () => {
   let wrapped: WrappedFunction<ObjectMetadata>;
 
@@ -22,16 +26,18 @@ describe('upload file to storage and export to google drive', () => {
   });
 
   test('it should upload file to cloud storage', async () => {
-    const response = await storage.bucket().upload('../../icon.png');
+    const response = await storage
+      .bucket()
+      .upload('../../icon.png', { destination: filePath });
 
-    expect(response[0].name).toBe('icon.png');
+    expect(response[0].name).toBe(filePath);
   });
 
   test('it should export a file to google drive', async () => {
     const objectMetadata = {
       ...testEnv.storage.exampleObjectMetadata(),
       bucket: 'demo-test.appspot.com',
-      name: 'icon.png',
+      name: filePath,
     };
 
     const response = await wrapped(objectMetadata);

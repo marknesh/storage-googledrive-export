@@ -15,13 +15,8 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
         return null;
       }
 
-      const renamedObject = {
-        ...object,
-        name: object.name.substring(lastSlashIndex + 1),
-      };
-
       return authorize()
-        .then((authClient) => uploadFile(authClient, renamedObject))
+        .then((authClient) => uploadFile(authClient, object))
         .catch((error) => {
           functions.logger.warn(error.message);
           return error.message;
