@@ -29,3 +29,7 @@
 ## Version 0.0.8
 
 - Use default service account to authenticate
+
+## Version 0.0.9
+
+- Allow multiple folder paths in FOLDER_PATH parameter.
