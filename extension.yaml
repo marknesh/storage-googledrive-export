@@ -1,5 +1,5 @@
 name: storage-googledrive-export
-version: 0.0.8
+version: 0.0.9
 specVersion: v1beta
 
 displayName: Export Storage Files to Google Drive
@@ -52,7 +52,7 @@ params:
 
   - param: FOLDER_PATH
     label: Cloud Storage folder (Not including heading slash)
-    description: Which folder do you want to listen to upload changes? e.g `photos` . This is optional. If specified, this extension will only run when a file is uploaded in the specified folder path.
+    description: Which folder do you want to listen to upload changes? e.g `photos` or to listen to multiple/sub folders e.g `photos,users` . This field is `optional` . If specified, this extension will only run when a file is uploaded in the specified folders.
     type: string
     required: false
 

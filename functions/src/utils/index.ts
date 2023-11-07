@@ -10,11 +10,31 @@ initializeApp();
 
 const storage = getStorage();
 
-config();
+config({});
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
 const FOLDER_ID = process.env.FOLDER_ID as string;
+
+/* Check if the folder with the object is in the list of allowed folders */
+const isAllowedFolder = (objectName: string, folderPaths: string[]) => {
+  return folderPaths.some((str) => objectName.includes(str.trim()));
+};
+
+/* Get the folder that contains the object */
+function extractPath(objectName: string) {
+  const slashesCount = (objectName.match(/\//g) || []).length;
+
+  if (slashesCount > 1) {
+    const secondLastSlashIndex = objectName.lastIndexOf(
+      '/',
+      objectName.lastIndexOf('/') - 1
+    );
+    return objectName.slice(secondLastSlashIndex + 1);
+  } else {
+    return objectName;
+  }
+}
 
 /**
  * Authorize with default service account and get the JWT client
@@ -87,4 +107,4 @@ async function uploadFile(
   }
 }
 
-export { authorize, uploadFile };
+export { authorize, uploadFile, extractPath, isAllowedFolder };
