@@ -14,7 +14,10 @@ const storage = getStorage();
 
 const testEnv = functions();
 
-const FOLDER_PATH = process.env.FOLDER_PATH;
+/* Should match FOLDER_PATH in storage-googledrive-export.env
+ * Leave empty if it is not declared in storage-googledrive-export.env
+ */
+const FOLDER_PATH = '';
 
 const filePath = FOLDER_PATH ? `${FOLDER_PATH}/icon.png` : 'icon.png';
 
