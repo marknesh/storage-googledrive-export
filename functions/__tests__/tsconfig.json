@@ -10,5 +10,5 @@
     "types": ["node", "jest"]
   },
   "compileOnSave": true,
-  "include": ["**/*.test.ts"]
+  "include": ["./index.test.ts"]
 }

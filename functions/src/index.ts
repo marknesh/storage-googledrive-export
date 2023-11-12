@@ -1,20 +1,29 @@
 import * as functions from 'firebase-functions';
-import {
-  authorize,
-  uploadFile,
-  extractPath,
-  isAllowedFolder,
-} from './utils';
+import { authorize, uploadFile, extractPath, isAllowedFolder } from './utils';
 
 const FOLDER_PATH = process.env.FOLDER_PATH;
+const FILE_TYPES = process.env.FILE_TYPES;
 
 export const exportToDrive = functions.storage.object().onFinalize((object) => {
   if (!object?.name) {
     functions.logger.warn('No object found');
     return 'No object found';
   }
-  /* Check if user specified a FOLDER_PATH parameter */
+
+  /* Check file type if specified */
+  if (
+    FILE_TYPES &&
+    object.contentType &&
+    !FILE_TYPES.includes(object.contentType)
+  ) {
+    functions.logger.warn(
+      `File type (${object.contentType}) is not allowed, because you did not specify it in the (Allowed File types) parameter`
+    );
+    return `File type (${object.contentType}) is not allowed, because you did not specify it in the (Allowed File types) parameter`;
+  }
+
   if (FOLDER_PATH) {
+    /* Check if user specified a FOLDER_PATH parameter */
     const lastSlashIndex = object.name.lastIndexOf('/');
 
     /* Cancel export if only the folder is created */
