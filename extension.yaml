@@ -1,5 +1,5 @@
 name: storage-googledrive-export
-version: 0.0.9
+version: 0.1.0
 specVersion: v1beta
 
 displayName: Export Storage Files to Google Drive
@@ -66,15 +66,14 @@ params:
     immutable: false
 
   - param: FILE_TYPES
-    label: Allowed File types
+    label: Allowed MIME types
     description: >-
-      The types of the files you want to upload to Google drive using the formats
+      The MIME types of the files you want to upload to Google drive. The most common MIME types can be
       referenced [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types).
-      This field is `optional` e.g `image/jpeg` or to allow more than one file type, please separate each type with a comma e.g `image/jpeg,video/mp4`
+      This field is `optional` e.g `image/jpeg` or to allow more than one MIME type, please separate each type with a comma e.g `image/jpeg,video/mp4`
     type: string
     required: true
-    immutable: false  
-      
+    immutable: false
 
   - param: LOCATION
     label: Cloud Functions location

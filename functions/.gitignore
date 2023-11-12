@@ -3,7 +3,7 @@
 **/*.js.map
 !jest.config.js
 !setup.js
-!eslintrc.js
+!.eslintrc.js
 
 # Typescript v1 declaration files
 typings/

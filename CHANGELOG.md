@@ -33,3 +33,7 @@
 ## Version 0.0.9
 
 - Allow multiple folder paths in FOLDER_PATH parameter.
+
+## Version 0.1.0
+
+- Only allow specific MIME types, if specified.
