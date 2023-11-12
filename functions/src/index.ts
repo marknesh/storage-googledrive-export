@@ -88,9 +88,9 @@ export const uploadtoDriveOnInstall = functions
 
             await Promise.all(uploadedFiles);
 
-            return;
+            return 'Upload existing files complete';
           } else {
-            return;
+            return 'No files found';
           }
         })
         .catch((error) => {
