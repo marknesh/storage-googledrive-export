@@ -1,7 +1,6 @@
 import * as functions from 'firebase-functions';
 import { authorize, uploadFile, extractPath, isAllowedFolder } from './utils';
 import { getStorage } from 'firebase-admin/storage';
-import { ObjectMetadata } from 'firebase-functions/v1/storage';
 
 const storage = getStorage();
 
@@ -75,11 +74,17 @@ export const uploadtoDriveOnInstall = functions
         .getFiles()
         .then(async (files) => {
           if (files[0].length > 0) {
-            let uploadedFiles = files[0].map((file: unknown) => {
+            let uploadedFiles = files[0].map((file) => {
+              /* Check if user specified a FOLDER_PATH parameter */
+              const lastSlashIndex = file.name.lastIndexOf('/');
+
+              /* Cancel export if only the folder is created */
+              if (!file.name.substring(lastSlashIndex + 1)) {
+                return null;
+              }
+
               return authorize()
-                .then((authClient) =>
-                  uploadFile(authClient, file as ObjectMetadata)
-                )
+                .then((authClient) => uploadFile(authClient, file as any))
                 .catch((error) => {
                   functions.logger.warn(error.message);
                   return error.message;
