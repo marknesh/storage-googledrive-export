@@ -21,7 +21,13 @@ const isAllowedFolder = (objectName: string, folderPaths: string[]) => {
   return folderPaths.some((str) => objectName.includes(str.trim()));
 };
 
-/* Get the folder that contains the object */
+/**
+ * Get the folder that contains the object
+ *
+ * @param {string} objectName
+ *
+ * @return {string} objectName
+ */
 function extractPath(objectName: string) {
   const slashesCount = (objectName.match(/\//g) || []).length;
 
@@ -59,6 +65,7 @@ async function authorize() {
  * @return {string} File uploaded successfully
  */
 async function uploadFile(
+  // eslint-disable-next-line
   authClient: any,
   object: functions.storage.ObjectMetadata
 ) {

@@ -65,6 +65,17 @@ params:
     required: true
     immutable: false
 
+  - param: FILE_TYPES
+    label: Allowed File types
+    description: >-
+      The types of the files you want to upload to Google drive using the formats
+      referenced [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types).
+      This field is `optional` e.g `image/jpeg` or to allow more than one file type, please separate each type with a comma e.g `image/jpeg,video/mp4`
+    type: string
+    required: true
+    immutable: false  
+      
+
   - param: LOCATION
     label: Cloud Functions location
     description: >-
