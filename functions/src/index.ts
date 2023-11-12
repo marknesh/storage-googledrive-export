@@ -1,8 +1,14 @@
 import * as functions from 'firebase-functions';
 import { authorize, uploadFile, extractPath, isAllowedFolder } from './utils';
+import { getStorage } from 'firebase-admin/storage';
+import { ObjectMetadata } from 'firebase-functions/v1/storage';
 
+const storage = getStorage();
+
+const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH;
 const FILE_TYPES = process.env.FILE_TYPES;
+const DO_PREUPLOAD = process.env.DO_PREUPLOAD;
 
 export const exportToDrive = functions.storage.object().onFinalize((object) => {
   if (!object?.name) {
@@ -57,3 +63,40 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
       });
   }
 });
+
+export const uploadtoDriveOnInstall = functions.tasks.taskQueue()
+  .onDispatch(async () => {
+    if (DO_PREUPLOAD) {
+      await storage
+        .bucket(BUCKET_NAME)
+        .getFiles()
+        .then(async (files) => {
+          if (files[0].length > 0) {
+            let uploadedFiles = files[0].map((file: unknown) => {
+              return authorize()
+                .then((authClient) =>
+                  uploadFile(authClient, file as ObjectMetadata)
+                )
+                .catch((error) => {
+                  functions.logger.warn(error.message);
+                  return error.message;
+                });
+            });
+
+            await Promise.all(uploadedFiles);
+            functions.logger.info(
+              'Finished uploading all existing files to Google drive'
+            );
+            return 'Finished uploading all existing existing files to Google drive';
+          } else {
+            return;
+          }
+        })
+        .catch((error) => {
+          functions.logger.warn(error.message);
+          return error.message;
+        });
+    } else {
+      return;
+    }
+  });

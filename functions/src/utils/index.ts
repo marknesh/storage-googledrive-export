@@ -3,10 +3,12 @@ import * as functions from 'firebase-functions';
 import { google } from 'googleapis';
 import axios from 'axios';
 import { Readable } from 'node:stream';
-import { initializeApp } from 'firebase-admin/app';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
+import { initializeApp } from 'firebase-admin/app';
 
 initializeApp();
+
+const BUCKET_NAME = process.env.BUCKET_NAME;
 
 const storage = getStorage();
 
@@ -71,7 +73,7 @@ async function uploadFile(
 ) {
   if (object.name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
-    const fileRef = await storage.bucket().file(object.name);
+    const fileRef = await storage.bucket(BUCKET_NAME).file(object.name);
     const url = await getDownloadURL(fileRef);
     return axios
       .get(url, {

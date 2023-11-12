@@ -40,7 +40,6 @@ describe('upload file to storage and export to google drive', () => {
   /* in .env with the allowed file types but don't add application/octet-stream
   /* in order for the test to pass */
   test('it should not allow file types that are not specified in FILE_TYPES', async () => {
-    jest.spyOn(console, 'warn').mockImplementation();
     const objectMetadata = {
       ...testEnv.storage.exampleObjectMetadata(),
       bucket: 'demo-test.appspot.com',

@@ -41,6 +41,12 @@ resources:
 
       runtime: 'nodejs16'
 
+  - name: uploadtoDriveOnInstall
+    type: firebaseextensions.v1beta.function
+    properties:
+      runtime: nodejs16
+      taskQueueTrigger: {}
+
 params:
   - param: BUCKET_NAME
     label: Cloud Storage bucket
@@ -72,8 +78,20 @@ params:
       referenced [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types).
       This field is `optional` e.g `image/jpeg` or to allow more than one MIME type, please separate each type with a comma e.g `image/jpeg,video/mp4`
     type: string
-    required: true
+    required: false
     immutable: false
+
+  - param: DO_PREUPLOAD
+    label: Upload existing files to Google drive?
+    description: >-
+      Do you want to upload the existing files in your storage bucket to Google drive?
+    type: select
+    required: true
+    options:
+      - label: Yes
+        value: true
+      - label: No
+        value: false
 
   - param: LOCATION
     label: Cloud Functions location
@@ -125,3 +143,8 @@ params:
         value: southamerica-east1
       - label: Sydney (australia-southeast1)
         value: australia-southeast1
+
+lifecycleEvents:
+  onInstall:
+    function: uploadtoDriveOnInstall
+    processingMessage: Uploading files to Google drive
