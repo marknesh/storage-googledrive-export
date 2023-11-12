@@ -81,7 +81,7 @@ params:
     required: false
     immutable: false
 
-  - param: DO_PREUPLOAD
+  - param: UPLOAD_EXISTING_FILES
     label: Upload existing files to Google drive?
     description: >-
       Do you want to upload the existing files in your storage bucket to Google drive?

@@ -38,3 +38,4 @@
 
 - Only allow specific MIME types, if specified.
 - Added onInstall lifecycle event.
+- Improved PREINSTALL documentation.

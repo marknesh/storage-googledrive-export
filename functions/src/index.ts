@@ -5,10 +5,11 @@ import { ObjectMetadata } from 'firebase-functions/v1/storage';
 
 const storage = getStorage();
 
+const LOCATION = process.env.LOCATION as string;
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH;
 const FILE_TYPES = process.env.FILE_TYPES;
-const DO_PREUPLOAD = process.env.DO_PREUPLOAD;
+const UPLOAD_EXISTING_FILES = process.env.UPLOAD_EXISTING_FILES;
 
 export const exportToDrive = functions.storage.object().onFinalize((object) => {
   if (!object?.name) {
@@ -64,9 +65,11 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
   }
 });
 
-export const uploadtoDriveOnInstall = functions.tasks.taskQueue()
+export const uploadtoDriveOnInstall = functions
+  .region(LOCATION)
+  .tasks.taskQueue()
   .onDispatch(async () => {
-    if (DO_PREUPLOAD) {
+    if (UPLOAD_EXISTING_FILES) {
       await storage
         .bucket(BUCKET_NAME)
         .getFiles()
@@ -84,10 +87,8 @@ export const uploadtoDriveOnInstall = functions.tasks.taskQueue()
             });
 
             await Promise.all(uploadedFiles);
-            functions.logger.info(
-              'Finished uploading all existing files to Google drive'
-            );
-            return 'Finished uploading all existing existing files to Google drive';
+
+            return;
           } else {
             return;
           }

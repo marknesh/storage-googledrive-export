@@ -9,14 +9,13 @@ import { initializeApp } from 'firebase-admin/app';
 initializeApp();
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
+const FOLDER_ID = process.env.FOLDER_ID as string;
 
 const storage = getStorage();
 
 config({});
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
-
-const FOLDER_ID = process.env.FOLDER_ID as string;
 
 /* Check if the folder with the object is in the list of allowed folders */
 const isAllowedFolder = (objectName: string, folderPaths: string[]) => {
