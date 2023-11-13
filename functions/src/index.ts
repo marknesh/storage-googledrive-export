@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
-import { authorize, uploadFile, extractPath, isAllowedFolder } from './utils';
+import { extractPath, isAllowedFolder, authorizeAndUploadFile } from './utils';
 import { getStorage } from 'firebase-admin/storage';
+import { File } from '@google-cloud/storage';
 
 const storage = getStorage();
 
@@ -23,9 +24,9 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
     !FILE_TYPES.includes(object.contentType)
   ) {
     functions.logger.warn(
-      `File type (${object.contentType}) is not allowed, because you did not specify it in the (Allowed File types) parameter`
+      `File type (${object.contentType}) is not allowed, because you did not specify it in the Allowed File types parameter`
     );
-    return `File type (${object.contentType}) is not allowed, because you did not specify it in the (Allowed File types) parameter`;
+    return `File type (${object.contentType}) is not allowed, because you did not specify it in the Allowed File types parameter`;
   }
 
   if (FOLDER_PATH) {
@@ -42,25 +43,15 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
     const folderWithObject = extractPath(object.name);
 
     if (isAllowedFolder(folderWithObject, folderPaths)) {
-      return authorize()
-        .then((authClient) => uploadFile(authClient, object))
-        .catch((error) => {
-          functions.logger.warn(error.message);
-          return error.message;
-        });
+      return authorizeAndUploadFile(object);
     } else {
       functions.logger.warn(
-        `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the FOLDER_PATH parameter, in order for the extension to work.`
+        `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the Cloud Storage folder parameter, in order for the extension to work.`
       );
-      return `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the FOLDER_PATH parameter, in order for the extension to work.`;
+      return `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the Cloud Storage folder parameter, in order for the extension to work.`;
     }
   } else {
-    return authorize()
-      .then((authClient) => uploadFile(authClient, object))
-      .catch((error) => {
-        functions.logger.warn(error.message);
-        return error.message;
-      });
+    return authorizeAndUploadFile(object);
   }
 });
 
@@ -74,7 +65,7 @@ export const uploadtoDriveOnInstall = functions
         .getFiles()
         .then(async (files) => {
           if (files[0].length > 0) {
-            let uploadedFiles = files[0].map((file) => {
+            const uploadedFiles = files[0].map((file: File) => {
               /* Check if user specified a FOLDER_PATH parameter */
               const lastSlashIndex = file.name.lastIndexOf('/');
 
@@ -83,12 +74,7 @@ export const uploadtoDriveOnInstall = functions
                 return null;
               }
 
-              return authorize()
-                .then((authClient) => uploadFile(authClient, file as any))
-                .catch((error) => {
-                  functions.logger.warn(error.message);
-                  return error.message;
-                });
+              return authorizeAndUploadFile(file);
             });
 
             await Promise.all(uploadedFiles);

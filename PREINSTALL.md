@@ -7,11 +7,11 @@ When a file is uploaded to cloud storage, this extension uploads that file to go
 - Create a folder in Google Drive.
 
 **To allow existing files to be uploaded to Google drive:**
--  **Share** access to your folder with the **Extension Service Account Email** when the installation is **halfway complete**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com` or else you will receive a warning message `Since there is no Google account associated with this email address...`, because the service account will not yet be created. 
+-  **Share Editor** access to your folder with the **Extension Service Account Email** when the extension installation is **halfway complete**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com` or else you will receive a warning message `Since there is no Google account associated with this email address...`, because the service account will not yet be created. 
 - This allows existing files to be uploaded to Google Drive immediately after this extension installation is complete, should you choose `yes` for that option.
 
 **To upload new files to Google drive after extension is installed:**
--  **Share** access to your folder with the **Extension Service Account Email** when the installation is **complete**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
+-  **Share Editor** access to your folder with the **Extension Service Account Email** when the extension installation is **complete**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
 
 **IMPORTANT**
 - If you install more than one instance of this extension, you must also share access to your folder with the new extension instance in the format `ext-storage-googledrive-export-<INSTANCE-ID>@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
