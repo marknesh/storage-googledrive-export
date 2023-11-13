@@ -71,7 +71,7 @@ async function uploadFile(
   authClient: any,
   object: functions.storage.ObjectMetadata | File
 ) {
-  if ('contentType' in object && object.name) {
+  if (object.name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
     const fileRef = await storage.bucket(BUCKET_NAME).file(object.name);
     const url = await getDownloadURL(fileRef);
@@ -86,7 +86,6 @@ async function uploadFile(
           .create({
             media: {
               body: Readable.from(imageStream),
-              mimeType: object.contentType,
             },
             fields: 'id',
             requestBody: {
