@@ -44,6 +44,7 @@ resources:
   - name: uploadtoDriveOnInstall
     type: firebaseextensions.v1beta.function
     properties:
+      location: ${param:LOCATION}
       runtime: nodejs16
       taskQueueTrigger: {}
 
@@ -87,6 +88,7 @@ params:
       Do you want to upload the existing files in your storage bucket to Google drive?
     type: select
     required: true
+    immutable: true
     options:
       - label: Yes
         value: true
