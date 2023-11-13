@@ -21,7 +21,7 @@
 
 **Installation of more than one extension instance:**
 
-- If you install more than one instance of this extension, you must also share access to your folder with the new extension instance service account email which can be found [here](https://console.cloud.google.com/iam-admin/serviceaccounts), after installing the extension.
+- If you install more than one instance of this extension, you must also share access to your folder with the new extension instance service account email which can be found [here](https://console.cloud.google.com/iam-admin/serviceaccounts).
 
 ### Billing
 
