@@ -60,7 +60,7 @@ export const uploadtoDriveOnInstall = functions
   .tasks.taskQueue()
   .onDispatch(async () => {
     if (UPLOAD_EXISTING_FILES) {
-      await storage
+      return storage
         .bucket(BUCKET_NAME)
         .getFiles()
         .then(async (files) => {
