@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import { extractPath, isAllowedFolder, authorizeAndUploadFile } from './utils';
 import { getStorage } from 'firebase-admin/storage';
 import { File } from '@google-cloud/storage';
+import { getExtensions } from 'firebase-admin/extensions';
 
 const storage = getStorage();
 
@@ -60,7 +61,7 @@ export const uploadtoDriveOnInstall = functions
   .tasks.taskQueue()
   .onDispatch(async () => {
     if (UPLOAD_EXISTING_FILES) {
-      await storage
+      return storage
         .bucket(BUCKET_NAME)
         .getFiles()
         .then(async (files) => {
@@ -79,7 +80,12 @@ export const uploadtoDriveOnInstall = functions
 
             await Promise.all(uploadedFiles);
 
-            return 'Upload existing files complete';
+            return getExtensions()
+              .runtime()
+              .setProcessingState(
+                'PROCESSING_COMPLETE',
+                'Upload of existing files complete.'
+              );
           } else {
             return 'No files found';
           }
@@ -89,6 +95,11 @@ export const uploadtoDriveOnInstall = functions
           return error.message;
         });
     } else {
-      return;
+      return getExtensions()
+        .runtime()
+        .setProcessingState(
+          'PROCESSING_COMPLETE',
+          'Upload of existing files skipped.'
+        );
     }
   });
