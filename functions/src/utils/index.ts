@@ -12,7 +12,7 @@ initializeApp();
 config();
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
-const FOLDER_ID = process.env.FOLDER_ID as string;
+const FOLDER_ID = process.env.FOLDER_ID?.trim() as string;
 
 const storage = getStorage();
 

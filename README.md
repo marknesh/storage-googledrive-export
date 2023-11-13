@@ -17,11 +17,11 @@
 
 **To upload new files to Google drive after extension is installed:**
 
-- **Share Editor** access to your folder with the **Extension Service Account Email** when the extension installation is **complete**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
+- **Share Editor** access to your folder with the **Extension Service Account Email** when the extension installation is **complete**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com` or check [the list of your service accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
 
-**IMPORTANT**
+**Installation of more than one extension instance:**
 
-- If you install more than one instance of this extension, you must also share access to your folder with the new extension instance in the format `ext-storage-googledrive-export-<INSTANCE-ID>@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
+- If you install more than one instance of this extension, you must also share access to your folder with the new extension instance service account email which can be found [here](https://console.cloud.google.com/iam-admin/serviceaccounts).
 
 ### Billing
 
