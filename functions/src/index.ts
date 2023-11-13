@@ -56,9 +56,8 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
   }
 });
 
-export const uploadtoDriveOnInstall = functions
-  .region(LOCATION)
-  .tasks.taskQueue()
+export const uploadtoDriveOnInstall = functions.tasks
+  .taskQueue()
   .onDispatch(async () => {
     if (UPLOAD_EXISTING_FILES) {
       return storage

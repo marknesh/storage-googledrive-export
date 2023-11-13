@@ -44,6 +44,7 @@ resources:
   - name: uploadtoDriveOnInstall
     type: firebaseextensions.v1beta.function
     properties:
+      location: ${param:LOCATION}
       runtime: nodejs16
       taskQueueTrigger: {}
 
