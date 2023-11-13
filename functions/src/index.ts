@@ -95,6 +95,11 @@ export const uploadtoDriveOnInstall = functions
           return error.message;
         });
     } else {
-      return;
+      return getExtensions()
+        .runtime()
+        .setProcessingState(
+          'PROCESSING_COMPLETE',
+          'Upload of existing files skipped.'
+        );
     }
   });
