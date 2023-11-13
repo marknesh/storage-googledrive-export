@@ -3,18 +3,20 @@ import * as functions from 'firebase-functions';
 import { google } from 'googleapis';
 import axios from 'axios';
 import { Readable } from 'node:stream';
-import { initializeApp } from 'firebase-admin/app';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
+import { File } from '@google-cloud/storage';
+import { initializeApp } from 'firebase-admin/app';
 
 initializeApp();
 
+config();
+
+const BUCKET_NAME = process.env.BUCKET_NAME;
+const FOLDER_ID = process.env.FOLDER_ID as string;
+
 const storage = getStorage();
 
-config({});
-
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
-
-const FOLDER_ID = process.env.FOLDER_ID as string;
 
 /* Check if the folder with the object is in the list of allowed folders */
 const isAllowedFolder = (objectName: string, folderPaths: string[]) => {
@@ -61,17 +63,17 @@ async function authorize() {
  * Exports file to google drive
  *
  * @param {JWT} authClient
- * @param {functions.storage.ObjectMetadata} object
+ * @param {functions.storage.ObjectMetadata|File} object
  * @return {string} File uploaded successfully
  */
 async function uploadFile(
   // eslint-disable-next-line
   authClient: any,
-  object: functions.storage.ObjectMetadata
+  object: functions.storage.ObjectMetadata | File
 ) {
   if (object.name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
-    const fileRef = await storage.bucket().file(object.name);
+    const fileRef = await storage.bucket(BUCKET_NAME).file(object.name);
     const url = await getDownloadURL(fileRef);
     return axios
       .get(url, {
@@ -84,7 +86,6 @@ async function uploadFile(
           .create({
             media: {
               body: Readable.from(imageStream),
-              mimeType: object.contentType,
             },
             fields: 'id',
             requestBody: {
@@ -114,4 +115,26 @@ async function uploadFile(
   }
 }
 
-export { authorize, uploadFile, extractPath, isAllowedFolder };
+/**
+ *
+ * @param {functions.storage.ObjectMetadata | File} object
+ * @return {string} File uploaded successfully
+ */
+const authorizeAndUploadFile = (
+  object: functions.storage.ObjectMetadata | File
+) => {
+  return authorize()
+    .then((authClient) => uploadFile(authClient, object))
+    .catch((error) => {
+      functions.logger.warn(error.message);
+      return error.message;
+    });
+};
+
+export {
+  authorize,
+  uploadFile,
+  extractPath,
+  isAllowedFolder,
+  authorizeAndUploadFile,
+};
