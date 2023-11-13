@@ -147,4 +147,4 @@ params:
 lifecycleEvents:
   onInstall:
     function: uploadtoDriveOnInstall
-    processingMessage: Uploading files to Google drive
+    processingMessage: Uploading existing files to Google drive
