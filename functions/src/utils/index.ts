@@ -131,10 +131,28 @@ const authorizeAndUploadFile = (
     });
 };
 
+const checkFolderCreation = (
+  file: functions.storage.ObjectMetadata | File
+): string | void => {
+  if (file.name) {
+    const lastSlashIndex = file.name.lastIndexOf('/');
+
+    /* Cancel export if only the folder is created */
+    if (!file.name.substring(lastSlashIndex + 1)) {
+      return 'Only folder was created';
+    } else {
+      return 'File exists';
+    }
+  } else {
+    return 'No file name found';
+  }
+};
+
 export {
   authorize,
   uploadFile,
   extractPath,
   isAllowedFolder,
   authorizeAndUploadFile,
+  checkFolderCreation,
 };
