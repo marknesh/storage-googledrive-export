@@ -6,7 +6,6 @@ import { getExtensions } from 'firebase-admin/extensions';
 
 const storage = getStorage();
 
-const LOCATION = process.env.LOCATION as string;
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH;
 const FILE_TYPES = process.env.FILE_TYPES;
@@ -56,9 +55,8 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
   }
 });
 
-export const uploadtoDriveOnInstall = functions
-  .region(LOCATION)
-  .tasks.taskQueue()
+export const uploadtoDriveOnInstall = functions.tasks
+  .taskQueue()
   .onDispatch(async () => {
     if (UPLOAD_EXISTING_FILES) {
       return storage
