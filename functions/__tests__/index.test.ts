@@ -36,6 +36,19 @@ describe('upload file to storage and export to google drive', () => {
     expect(response[0].name).toBe(filePath);
   });
 
+  test('it should not upload a folder with no file', async () => {
+    const objectMetadata = {
+      ...testEnv.storage.exampleObjectMetadata(),
+      bucket: 'demo-test.appspot.com',
+      name: 'folder/',
+      contentType: 'image/png',
+    };
+
+    const response = await wrapped(objectMetadata);
+
+    expect(response).toEqual('Only folder was created');
+  });
+
   /* Before testing file types, please add FILE_TYPES
   /* in .env with the file type you want to test*/
   test('it should only allow file types that are specified in FILE_TYPES', async () => {

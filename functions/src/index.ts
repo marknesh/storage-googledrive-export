@@ -1,5 +1,10 @@
 import * as functions from 'firebase-functions';
-import { extractPath, isAllowedFolder, authorizeAndUploadFile } from './utils';
+import {
+  extractPath,
+  isAllowedFolder,
+  authorizeAndUploadFile,
+  checkFolderCreation,
+} from './utils';
 import { getStorage } from 'firebase-admin/storage';
 import { File } from '@google-cloud/storage';
 import { getExtensions } from 'firebase-admin/extensions';
@@ -29,13 +34,12 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
     return `File type (${object.contentType}) is not allowed, because you did not specify it in the Allowed File types parameter`;
   }
 
+  /* Check if user specified a FOLDER_PATH parameter */
   if (FOLDER_PATH) {
-    /* Check if user specified a FOLDER_PATH parameter */
-    const lastSlashIndex = object.name.lastIndexOf('/');
+    const result = checkFolderCreation(object);
 
-    /* Cancel export if only the folder is created */
-    if (!object.name.substring(lastSlashIndex + 1)) {
-      return null;
+    if (result !== 'File exists') {
+      return result;
     }
 
     const folderPaths = FOLDER_PATH.split(',');
@@ -51,6 +55,11 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
       return `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the Cloud Storage folder parameter, in order for the extension to work.`;
     }
   } else {
+    const result = checkFolderCreation(object);
+    if (result !== 'File exists') {
+      return result;
+    }
+
     return authorizeAndUploadFile(object);
   }
 });
@@ -58,41 +67,7 @@ export const exportToDrive = functions.storage.object().onFinalize((object) => {
 export const uploadtoDriveOnInstall = functions.tasks
   .taskQueue()
   .onDispatch(async () => {
-    if (UPLOAD_EXISTING_FILES) {
-      return storage
-        .bucket(BUCKET_NAME)
-        .getFiles()
-        .then(async (files) => {
-          if (files[0].length > 0) {
-            const uploadedFiles = files[0].map((file: File) => {
-              /* Check if user specified a FOLDER_PATH parameter */
-              const lastSlashIndex = file.name.lastIndexOf('/');
-
-              /* Cancel export if only the folder is created */
-              if (!file.name.substring(lastSlashIndex + 1)) {
-                return null;
-              }
-
-              return authorizeAndUploadFile(file);
-            });
-
-            await Promise.all(uploadedFiles);
-
-            return getExtensions()
-              .runtime()
-              .setProcessingState(
-                'PROCESSING_COMPLETE',
-                'Upload of existing files complete.'
-              );
-          } else {
-            return 'No files found';
-          }
-        })
-        .catch((error) => {
-          functions.logger.warn(error.message);
-          return error.message;
-        });
-    } else {
+    if (UPLOAD_EXISTING_FILES === 'false') {
       return getExtensions()
         .runtime()
         .setProcessingState(
@@ -100,4 +75,34 @@ export const uploadtoDriveOnInstall = functions.tasks
           'Upload of existing files skipped.'
         );
     }
+    return storage
+      .bucket(BUCKET_NAME)
+      .getFiles()
+      .then(async (files) => {
+        if (files[0].length > 0) {
+          const uploadedFiles = files[0].map((file: File) => {
+            const result = checkFolderCreation(file);
+            if (result !== 'File exists') {
+              return result;
+            }
+
+            return authorizeAndUploadFile(file);
+          });
+
+          await Promise.all(uploadedFiles);
+
+          return getExtensions()
+            .runtime()
+            .setProcessingState(
+              'PROCESSING_COMPLETE',
+              'Upload of existing files complete.'
+            );
+        } else {
+          return 'No files found';
+        }
+      })
+      .catch((error) => {
+        functions.logger.warn(error.message);
+        return error.message;
+      });
   });
