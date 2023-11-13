@@ -6,7 +6,6 @@ import { getExtensions } from 'firebase-admin/extensions';
 
 const storage = getStorage();
 
-const LOCATION = process.env.LOCATION as string;
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH;
 const FILE_TYPES = process.env.FILE_TYPES;
