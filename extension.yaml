@@ -95,6 +95,27 @@ params:
       - label: No
         value: false
 
+  - param: USE_FOLDER_STRUCTURE
+    label: Do you want to use the existing folder structure?
+    description: >-
+      Do you want the uploaded files to follow the folder structure in cloud storage e.g if there
+      is a sub-folder, it will also create a sub-folder. If this option is not allowed, only the file will be created, without the sub-folders.
+    type: select
+    required: true
+    immutable: false
+    options:
+      - label: Yes
+        value: true
+      - label: No
+        value: false
+
+  - param: EMAIL_ADDRESS
+    label: The email address of the google drive account in which you added the service account.
+    description: >-
+      The email address of the google drive account in which you added the service account. Please leave this field blank only if you did not select yes to use existing folder structure, but if you selected yes, this field is required. This allows you to view sub-folders in google drive.
+    required: false
+    immutable: false
+
   - param: LOCATION
     label: Cloud Functions location
     description: >-
