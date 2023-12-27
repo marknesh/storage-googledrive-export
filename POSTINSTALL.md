@@ -1,6 +1,6 @@
 # See it in action
 
-You can test out this extension by uploading a file to your storage bucket. The same file will be uploaded to the Google Drive folder you specified when installing the extension.
+Please ensure you have **shared editor** access to your folder with the **Extension Service Account Email**. You can test out this extension by uploading a file to your storage bucket. The same file will be uploaded to the Google Drive folder you specified when installing the extension.
 
 # Using the extension
 
