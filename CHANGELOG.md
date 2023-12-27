@@ -39,3 +39,7 @@
 - Only allow specific MIME types, if specified.
 - Added onInstall lifecycle event.
 - Improved PREINSTALL documentation.
+
+## Version 0.1.1
+
+- Follow the same folder structure when uploading in google drive. (optional)
