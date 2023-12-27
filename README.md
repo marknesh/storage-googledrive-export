@@ -45,6 +45,10 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 
 - UPLOAD_EXISTING_FILES: Do you want to upload the existing files in your storage bucket to Google drive?
 
+- USE_FOLDER_STRUCTURE: Do you want the uploaded files to follow the folder structure in cloud storage ? e.g if there is a sub-folder, it will also create a sub-folder. If this option is not allowed, only the file will be created, without the sub-folders.
+
+- EMAIL_ADDRESS: The email address of the google drive account in which you added the service account. Please leave this field blank only if you did not select yes to use existing folder structure, but if you selected yes, this field is required. This allows you to view sub-folders in google drive.
+
 - LOCATION: Where do you want to deploy the functions created for this extension?
 
 **Cloud Functions:**
