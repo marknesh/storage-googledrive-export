@@ -43,3 +43,7 @@
 ## Version 0.1.1
 
 - Follow the same folder structure when uploading in google drive. (optional)
+
+## Version 0.1.2
+
+- Updated docs with new config parameters.
