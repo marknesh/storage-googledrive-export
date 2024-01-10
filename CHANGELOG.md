@@ -47,3 +47,7 @@
 ## Version 0.1.2
 
 - Updated docs with new config parameters.
+
+## Version 0.1.3
+
+- Fixed creation of sub-folders for existing files.
