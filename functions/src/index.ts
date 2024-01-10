@@ -6,7 +6,6 @@ import {
   checkFolderCreation,
 } from './utils';
 import { getStorage } from 'firebase-admin/storage';
-import { File } from '@google-cloud/storage';
 import { getExtensions } from 'firebase-admin/extensions';
 
 const storage = getStorage();
@@ -75,21 +74,20 @@ export const uploadtoDriveOnInstall = functions.tasks
           'Upload of existing files skipped.'
         );
     }
+
     return storage
       .bucket(BUCKET_NAME)
       .getFiles()
       .then(async (files) => {
         if (files[0].length > 0) {
-          const uploadedFiles = files[0].map((file: File) => {
+          for (const file of files[0]) {
             const result = checkFolderCreation(file);
             if (result !== 'File exists') {
-              return result;
+              continue;
             }
 
-            return authorizeAndUploadFile(file);
-          });
-
-          await Promise.all(uploadedFiles);
+            await authorizeAndUploadFile(file);
+          }
 
           return getExtensions()
             .runtime()
