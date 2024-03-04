@@ -1,5 +1,5 @@
 name: storage-googledrive-export
-version: 0.1.3
+version: 0.1.4
 specVersion: v1beta
 
 displayName: Export Storage Files to Google Drive
@@ -171,3 +171,7 @@ lifecycleEvents:
   onInstall:
     function: uploadtoDriveOnInstall
     processingMessage: Uploading existing files to Google drive
+
+events:
+  - type: mark.storage-googledrive-export.v1.complete
+    description: Occurs when uploading to google drive completes.
