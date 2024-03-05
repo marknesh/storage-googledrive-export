@@ -72,7 +72,7 @@ export const exportToDrive = functions.storage
       }
 
       await authorizeAndUploadFile(object);
-      return
+      return;
       // return (
       //   eventChannel &&
       //   (await eventChannel.publish({
