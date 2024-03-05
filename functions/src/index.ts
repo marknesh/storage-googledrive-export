@@ -8,9 +8,6 @@ import {
 import { getStorage } from 'firebase-admin/storage';
 import { getExtensions } from 'firebase-admin/extensions';
 // import { getEventarc } from 'firebase-admin/eventarc';
-import { initializeApp } from 'firebase-admin/app';
-
-initializeApp();
 
 const storage = getStorage();
 
