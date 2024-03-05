@@ -7,7 +7,10 @@ import {
 } from './utils';
 import { getStorage } from 'firebase-admin/storage';
 import { getExtensions } from 'firebase-admin/extensions';
-import { getEventarc } from 'firebase-admin/eventarc';
+// import { getEventarc } from 'firebase-admin/eventarc';
+import { initializeApp } from 'firebase-admin/app';
+
+initializeApp();
 
 const storage = getStorage();
 
@@ -16,11 +19,11 @@ const FOLDER_PATH = process.env.FOLDER_PATH;
 const FILE_TYPES = process.env.FILE_TYPES;
 const UPLOAD_EXISTING_FILES = process.env.UPLOAD_EXISTING_FILES;
 
-const eventChannel =
-  process.env.EVENTARC_CHANNEL &&
-  getEventarc().channel(process.env.EVENTARC_CHANNEL, {
-    allowedEventTypes: process.env.EXT_SELECTED_EVENTS,
-  });
+// const eventChannel =
+//   process.env.EVENTARC_CHANNEL &&
+//   getEventarc().channel(process.env.EVENTARC_CHANNEL, {
+//     allowedEventTypes: process.env.EXT_SELECTED_EVENTS,
+//   });
 
 export const exportToDrive = functions.storage
   .object()
@@ -69,15 +72,16 @@ export const exportToDrive = functions.storage
       }
 
       await authorizeAndUploadFile(object);
-      return (
-        eventChannel &&
-        (await eventChannel.publish({
-          type: 'mark.storage-googledrive-export.v1.complete',
-          data: {
-            file: object.name,
-          },
-        }))
-      );
+      return
+      // return (
+      //   eventChannel &&
+      //   (await eventChannel.publish({
+      //     type: 'mark.storage-googledrive-export.v1.complete',
+      //     data: {
+      //       file: object.name,
+      //     },
+      //   }))
+      // );
     }
   });
 
