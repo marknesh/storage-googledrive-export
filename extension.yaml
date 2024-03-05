@@ -167,11 +167,11 @@ params:
       - label: Sydney (australia-southeast1)
         value: australia-southeast1
 
+events:
+  - type: mark.storage-googledrive-export.v1.complete
+    description: Occurs when uploading to google drive completes.
+
 lifecycleEvents:
   onInstall:
     function: uploadtoDriveOnInstall
     processingMessage: Uploading existing files to Google drive
-
-# events:
-#   - type: mark.storage-googledrive-export.v1.complete
-#     description: Occurs when uploading to google drive completes.
