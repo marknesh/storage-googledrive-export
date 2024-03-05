@@ -74,7 +74,7 @@ export const exportToDrive = functions.storage
         (await eventChannel.publish({
           type: 'mark.storage-googledrive-export.v1.complete',
           data: {
-            file: object.name,
+            file: object,
           },
         }))
       );
@@ -107,12 +107,21 @@ export const uploadtoDriveOnInstall = functions.tasks
             await authorizeAndUploadFile(file);
           }
 
-          return getExtensions()
+          getExtensions()
             .runtime()
             .setProcessingState(
               'PROCESSING_COMPLETE',
               'Upload of existing files complete.'
             );
+          return (
+            eventChannel &&
+            (await eventChannel.publish({
+              type: 'mark.storage-googledrive-export.v1.complete',
+              data: {
+                files: files,
+              },
+            }))
+          );
         } else {
           return 'No files found';
         }
