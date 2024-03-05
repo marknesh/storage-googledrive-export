@@ -38,14 +38,15 @@ resources:
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${BUCKET_NAME}
-
-      runtime: 'nodejs16'
+      runtime: 'nodejs18'
 
   - name: uploadtoDriveOnInstall
     type: firebaseextensions.v1beta.function
+    description: >-
+      Function that exports all existing files to google drive after install is complete (Optional).
     properties:
       location: ${param:LOCATION}
-      runtime: nodejs16
+      runtime: nodejs18
       taskQueueTrigger: {}
 
 params:
@@ -122,6 +123,7 @@ params:
       Where do you want to deploy the functions created for this extension?
       For help selecting a location, refer to the [location selection
       guide](https://firebase.google.com/docs/functions/locations).
+    default: us-central1
     required: true
     immutable: true
     type: select
