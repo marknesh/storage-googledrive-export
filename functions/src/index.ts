@@ -74,7 +74,7 @@ export const exportToDrive = functions.storage
         (await eventChannel.publish({
           type: 'mark.storage-googledrive-export.v1.complete',
           data: {
-            file: object,
+            file: object.name,
           },
         }))
       );
