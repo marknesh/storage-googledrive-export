@@ -4,6 +4,7 @@ import {
   isAllowedFolder,
   authorizeAndUploadFile,
   checkFolderCreation,
+  cachedDriveFolders,
 } from './utils';
 import { getStorage } from 'firebase-admin/storage';
 import { getExtensions } from 'firebase-admin/extensions';
@@ -68,16 +69,18 @@ export const exportToDrive = functions.storage
         return result;
       }
 
-      await authorizeAndUploadFile(object);
-      return (
-        eventChannel &&
-        (await eventChannel.publish({
-          type: 'mark.storage-googledrive-export.v1.complete',
-          data: {
-            file: object,
-          },
-        }))
-      );
+      const response = await authorizeAndUploadFile(object);
+
+      cachedDriveFolders.length = 0;
+
+      return eventChannel
+        ? await eventChannel.publish({
+            type: 'mark.storage-googledrive-export.v1.complete',
+            data: {
+              file: object,
+            },
+          })
+        : response;
     }
   });
 
@@ -96,7 +99,7 @@ export const uploadtoDriveOnInstall = functions.tasks
     return storage
       .bucket(BUCKET_NAME)
       .getFiles()
-      .then(async (files) => {
+      .then(async (files: functions.storage.ObjectMetadata[][]) => {
         if (files[0].length > 0) {
           for (const file of files[0]) {
             const result = checkFolderCreation(file);
@@ -107,22 +110,38 @@ export const uploadtoDriveOnInstall = functions.tasks
             await authorizeAndUploadFile(file);
           }
 
+          cachedDriveFolders.length = 0;
+
           getExtensions()
             .runtime()
             .setProcessingState(
               'PROCESSING_COMPLETE',
               'Upload of existing files complete.'
             );
+
+          const existingFiles = files.map((file) => {
+            return {
+              id: file[0].id,
+              name: file[0].name,
+              bucket: file[0].bucket,
+              contentType: file[0].contentType,
+              mediaLink: file[0].mediaLink,
+              size: file[0].size,
+              selfLink: file[0].selfLink,
+            };
+          });
+
           return (
             eventChannel &&
             (await eventChannel.publish({
               type: 'mark.storage-googledrive-export.v1.complete',
               data: {
-                files: files,
+                existingFiles,
               },
             }))
           );
         } else {
+          functions.logger.log('No existing files found');
           return 'No files found';
         }
       })

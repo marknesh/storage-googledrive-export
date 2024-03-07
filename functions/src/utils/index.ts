@@ -4,9 +4,7 @@ import { drive_v3 as driveV3, google } from 'googleapis';
 import axios from 'axios';
 import { Readable } from 'node:stream';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
-import { File } from '@google-cloud/storage';
 import { initializeApp } from 'firebase-admin/app';
-
 initializeApp();
 
 config();
@@ -23,6 +21,8 @@ const storage = getStorage();
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 let currentParentId: string = FOLDER_ID;
+
+export const cachedDriveFolders: cachedDriveFoldersProps[] = [];
 
 /* Check if the folder with the object is in the list of allowed folders */
 const isAllowedFolder = (objectName: string, folderPaths: string[]) => {
@@ -70,32 +70,44 @@ const createSubFolders = async (filePath: string, drive: driveV3.Drive) => {
     functions.logger.warn(emailError);
     return emailError;
   }
+
   currentParentId = FOLDER_ID;
+
+  const firstSlash = filePath.indexOf('/');
   const lastSlash = filePath.lastIndexOf('/');
-
   const folders = filePath.substring(0, lastSlash).split('/');
-
+  const firstFolder = filePath.substring(0, firstSlash);
   let response;
-  for (const folder of folders) {
-    const driveFiles = await drive.files.list({
-      q: `name='${folder}' and mimeType='application/vnd.google-apps.folder' and '${currentParentId}' in parents`,
+
+  for (const [index, folder] of folders.entries()) {
+    const driveFolders = await drive.files.list({
+      q: `name='${folder}' and mimeType='application/vnd.google-apps.folder' and '${currentParentId}' in parents and trashed=false`,
     });
 
-    if (driveFiles?.data?.files && driveFiles?.data?.files.length > 0) {
-      const id = driveFiles?.data?.files[0]?.id;
+    const filteredCachedFolders = cachedDriveFolders.filter(
+      (file) =>
+        file.index === index &&
+        file.folder === folder &&
+        file.firstFolder === firstFolder
+    );
+
+    const folderExists =
+      driveFolders?.data?.files && driveFolders?.data.files?.length > 0;
+
+    /* drive api takes time to load newly created files, so will use it only when
+    the folder does not exist in local cache.
+
+    https://stackoverflow.com/questions/67571418/google-drive-api-files-list-not-refreshing
+    */
+
+    if (filteredCachedFolders?.length > 0 || folderExists) {
+      const id =
+        filteredCachedFolders[0]?.id ||
+        (driveFolders?.data?.files && driveFolders?.data?.files[0]?.id);
 
       if (id) {
         currentParentId = id;
-        response = await drive.permissions.create({
-          fields: 'id',
-          fileId: currentParentId,
-          requestBody: {
-            type: 'user',
-            role: 'writer',
-            emailAddress: `${EMAIL_ADDRESS}`,
-          },
-          sendNotificationEmail: false,
-        });
+        response = { data: { id: `${id}` } };
       }
     } else {
       const driveResponse = await drive.files.create({
@@ -119,13 +131,21 @@ const createSubFolders = async (filePath: string, drive: driveV3.Drive) => {
           },
           sendNotificationEmail: false,
         });
+
+        cachedDriveFolders.push({
+          folder,
+          index,
+          id: driveResponse?.data?.id,
+          firstFolder,
+        });
       }
     }
   }
+
   return response;
 };
 
-const fileName = (filePath: string) => {
+const getFileName = (filePath: string) => {
   const slashesCount = (filePath.match(/\//g) || []).length;
 
   if (USE_FOLDER_STRUCTURE === 'true' && slashesCount > 0) {
@@ -143,13 +163,13 @@ const fileName = (filePath: string) => {
  * Exports file to google drive
  *
  * @param {JWT} authClient
- * @param {functions.storage.ObjectMetadata|File} object
+ * @param {FileMetadata} object
  * @return {string} File uploaded successfully
  */
 async function uploadFile(
   // eslint-disable-next-line
   authClient: any,
-  object: functions.storage.ObjectMetadata | File
+  object: FileMetadata
 ) {
   if (object?.name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
@@ -168,6 +188,24 @@ async function uploadFile(
       currentParentId = FOLDER_ID;
     }
 
+    const driveFile = await drive.files.list({
+      q: `name='${getFileName(
+        object.name
+      )}' and '${currentParentId}' in parents and trashed = false`,
+    });
+
+    if (driveFile?.data?.files && driveFile?.data?.files?.length > 0) {
+      functions.logger.warn(
+        `File already exists in drive with file id ${
+          driveFile?.data?.files && driveFile.data?.files[0]?.id
+        }`
+      );
+
+      return `File already exists in drive with file id ${
+        driveFile?.data?.files && driveFile?.data?.files[0]?.id
+      }`;
+    }
+
     return await axios
       .get(url, {
         responseType: 'stream',
@@ -181,9 +219,9 @@ async function uploadFile(
               media: {
                 body: Readable.from(imageStream),
               },
-              fields: 'id',
+              fields: 'id,name',
               requestBody: {
-                name: fileName(object.name),
+                name: getFileName(object.name),
                 parents: [currentParentId],
               },
             })
@@ -212,12 +250,10 @@ async function uploadFile(
 
 /**
  *
- * @param {functions.storage.ObjectMetadata | File} object
+ * @param {FileMetadata} object
  * @return {string} File uploaded successfully
  */
-const authorizeAndUploadFile = (
-  object: functions.storage.ObjectMetadata | File
-) => {
+const authorizeAndUploadFile = (object: FileMetadata) => {
   return authorize()
     .then((authClient) => {
       return uploadFile(authClient, object);
@@ -228,9 +264,7 @@ const authorizeAndUploadFile = (
     });
 };
 
-const checkFolderCreation = (
-  file: functions.storage.ObjectMetadata | File
-): string | void => {
+const checkFolderCreation = (file: FileMetadata): string | void => {
   if (file.name) {
     const lastSlashIndex = file.name.lastIndexOf('/');
 
