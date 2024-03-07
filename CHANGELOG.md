@@ -54,4 +54,4 @@
 
 ## Version 0.1.4
 
-- Publish eventarc event (when uploading to drive completes).
+- Publish eventarc event (when uploading to drive completes) and fix upload of existing files.
