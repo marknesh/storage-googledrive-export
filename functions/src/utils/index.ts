@@ -12,8 +12,6 @@ config();
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS?.trim() as string;
 const USE_FOLDER_STRUCTURE = process.env.USE_FOLDER_STRUCTURE;
-const emailError =
-  'Please enter an email address in the config parameters, that you want give access to view sub-folders.';
 const FOLDER_ID = process.env.FOLDER_ID?.trim() as string;
 
 const storage = getStorage();
@@ -66,11 +64,6 @@ async function authorize() {
 }
 
 const createSubFolders = async (filePath: string, drive: driveV3.Drive) => {
-  if (!EMAIL_ADDRESS) {
-    functions.logger.warn(emailError);
-    return emailError;
-  }
-
   currentParentId = FOLDER_ID;
 
   const firstSlash = filePath.indexOf('/');
@@ -181,7 +174,7 @@ async function uploadFile(
     if (USE_FOLDER_STRUCTURE === 'true' && slashesCount > 0) {
       const response = await createSubFolders(object.name, drive);
 
-      if (response === emailError || !response?.data?.id) return;
+      if (!response?.data?.id) return;
     }
 
     if (slashesCount === 0) {
