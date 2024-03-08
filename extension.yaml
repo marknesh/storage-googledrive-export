@@ -38,6 +38,7 @@ resources:
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${BUCKET_NAME}
+        failurePolicy: { retry: {} }
       runtime: 'nodejs18'
       maxInstances: 1
       timeout: 540s
@@ -51,7 +52,6 @@ resources:
       runtime: nodejs18
       taskQueueTrigger: {}
       timeout: 540s
-      maxInstances: 1
 
 params:
   - param: BUCKET_NAME
