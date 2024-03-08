@@ -39,6 +39,8 @@ resources:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${BUCKET_NAME}
       runtime: 'nodejs18'
+      maxInstances: 1
+      timeout: 540s
 
   - name: uploadtoDriveOnInstall
     type: firebaseextensions.v1beta.function
@@ -48,6 +50,8 @@ resources:
       location: ${param:LOCATION}
       runtime: nodejs18
       taskQueueTrigger: {}
+      timeout: 540s
+      maxInstances: 1
 
 params:
   - param: BUCKET_NAME
