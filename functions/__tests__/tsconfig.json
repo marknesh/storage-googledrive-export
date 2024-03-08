@@ -10,5 +10,5 @@
     "types": ["node", "jest"]
   },
   "compileOnSave": true,
-  "include": ["./index.test.ts"]
+  "include": ["./index.test.ts", "../types.d.ts"]
 }
