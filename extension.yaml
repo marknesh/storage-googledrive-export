@@ -117,8 +117,8 @@ params:
   - param: EMAIL_ADDRESS
     label: The email address of the google drive account in which you added the service account.
     description: >-
-      The email address of the google drive account in which you added the service account. Please leave this field blank only if you did not select yes to use existing folder structure, but if you selected yes, this field is required. This allows you to view sub-folders in google drive.
-    required: false
+      The email address of the google drive account in which you added the service account. This allows you to view sub-folders in google drive.
+    required: true
     immutable: false
 
   - param: LOCATION
