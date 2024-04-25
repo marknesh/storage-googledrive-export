@@ -181,24 +181,6 @@ async function uploadFile(
       currentParentId = FOLDER_ID;
     }
 
-    const driveFile = await drive.files.list({
-      q: `name='${getFileName(
-        object.name
-      )}' and '${currentParentId}' in parents and trashed = false`,
-    });
-
-    if (driveFile?.data?.files && driveFile?.data?.files?.length > 0) {
-      functions.logger.warn(
-        `File already exists in drive with file id ${
-          driveFile?.data?.files && driveFile.data?.files[0]?.id
-        }`
-      );
-
-      return `File already exists in drive with file id ${
-        driveFile?.data?.files && driveFile?.data?.files[0]?.id
-      }`;
-    }
-
     return await axios
       .get(url, {
         responseType: 'stream',
@@ -272,6 +254,10 @@ const checkFolderCreation = (file: FileMetadata): string | void => {
   }
 };
 
+const bytesToMb = (bytes: number) => {
+  return bytes / (1024 * 1024);
+};
+
 export {
   authorize,
   uploadFile,
@@ -279,4 +265,5 @@ export {
   isAllowedFolder,
   authorizeAndUploadFile,
   checkFolderCreation,
+  bytesToMb,
 };

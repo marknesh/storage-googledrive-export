@@ -76,4 +76,22 @@ describe('upload file to storage and export to google drive', () => {
 
     expect(response).toEqual('File uploaded successfully');
   }, 20000);
+
+  /* Add MAXIMUM_FILE_SIZE env variable inorder to test this */
+  test('Should not upload file if maximum file size limit is reached', async () => {
+    const objectMetadata = {
+      ...testEnv.storage.exampleObjectMetadata(),
+      bucket: 'demo-test.appspot.com',
+      name: filePath,
+      contentType: 'image/png',
+      /* size should be less than MAXIMUM_FILE_SIZE  */
+      size: '3145728',
+    };
+
+    const response = await wrapped(objectMetadata);
+
+    expect(response).toContain(
+      'File size is greater than the maximum file size limit'
+    );
+  });
 });
