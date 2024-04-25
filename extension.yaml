@@ -1,5 +1,5 @@
 name: storage-googledrive-export
-version: 0.1.4
+version: 0.1.5
 specVersion: v1beta
 
 displayName: Export Storage Files to Google Drive
@@ -83,6 +83,15 @@ params:
       The MIME types of the files you want to upload to Google drive. The most common MIME types can be
       referenced [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types).
       This field is `optional` e.g `image/jpeg` or to allow more than one MIME type, please separate each type with a comma e.g `image/jpeg,video/mp4`
+    type: string
+    required: false
+    immutable: false
+
+  - param: MAXIMUM_FILE_SIZE
+    label: Maximum file size to upload
+    description: >-
+     The maximum file size to upload to upload to google drive in megabytes(MB).
+     This field is `optional`.
     type: string
     required: false
     immutable: false
