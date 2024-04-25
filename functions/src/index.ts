@@ -5,6 +5,7 @@ import {
   authorizeAndUploadFile,
   checkFolderCreation,
   cachedDriveFolders,
+  bytesToMb,
 } from './utils';
 import { getStorage } from 'firebase-admin/storage';
 import { getExtensions } from 'firebase-admin/extensions';
@@ -16,6 +17,7 @@ const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH;
 const FILE_TYPES = process.env.FILE_TYPES;
 const UPLOAD_EXISTING_FILES = process.env.UPLOAD_EXISTING_FILES;
+const MAXIMUM_FILE_SIZE = process.env.MAXIMUM_FILE_SIZE;
 
 const eventChannel =
   process.env.EVENTARC_CHANNEL &&
@@ -29,6 +31,22 @@ export const exportToDrive = functions.storage
     if (!object?.name) {
       functions.logger.warn('No object found');
       return 'No object found';
+    }
+
+    /* Check for file size limit */
+    if (MAXIMUM_FILE_SIZE) {
+      let fileSizeinMb = bytesToMb(Number(object.size));
+
+      /* Round up to two decimal places */
+      fileSizeinMb = Math.round(fileSizeinMb * 100) / 100;
+
+      const fileSizeLimit = Number(MAXIMUM_FILE_SIZE);
+      if (fileSizeinMb > fileSizeLimit) {
+        functions.logger.warn(
+          `File size is greater than the maximum file size limit of ${fileSizeLimit}MB`
+        );
+        return `File size is greater than the maximum file size limit of ${fileSizeLimit}MB`;
+      }
     }
 
     /* Check file type if specified */

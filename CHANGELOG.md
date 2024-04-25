@@ -55,3 +55,7 @@
 ## Version 0.1.4
 
 - Publish eventarc event (when uploading to drive completes) and fix upload of existing files.
+
+## Version 0.1.5
+
+- Added option to set maximum file size limit to upload to google drive.
