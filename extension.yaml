@@ -90,7 +90,7 @@ params:
   - param: MAXIMUM_FILE_SIZE
     label: Maximum file size to upload
     description: >-
-     The maximum file size to upload to upload to google drive in megabytes(MB).
+     The maximum file size to upload to google drive in megabytes(MB).
      This field is `optional`.
     type: string
     required: false

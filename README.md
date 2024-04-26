@@ -43,6 +43,8 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 
 - FILE_TYPES: The MIME types of the files you want to upload to Google drive. The most common MIME types can be referenced [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types). This field is `optional` e.g `image/jpeg` or to allow more than one MIME type, please separate each type with a comma e.g `image/jpeg,video/mp4`
 
+- MAXIMUM_FILE_SIZE: The maximum file size to upload to google drive in megabytes(MB). This field is `optional`.
+
 - UPLOAD_EXISTING_FILES: Do you want to upload the existing files in your storage bucket to Google drive?
 
 - USE_FOLDER_STRUCTURE: Do you want the uploaded files to follow the folder structure in cloud storage ? e.g if there is a sub-folder, it will also create a sub-folder. If this option is not allowed, only the file will be created, without the sub-folders.
