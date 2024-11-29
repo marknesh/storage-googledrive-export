@@ -284,14 +284,6 @@ const authorizeAndUploadFile = (
   object: FileMetadata,
   uploadingExistingFiles?: boolean
 ) => {
-  const fileSizeWarning = checkFileSizeLimit(object);
-
-  if (fileSizeWarning) return fileSizeWarning;
-
-  const fileTypeWarning = checkFileType(object);
-
-  if (fileTypeWarning) return fileTypeWarning;
-
   return authorize()
     .then((authClient) => {
       return uploadFile(authClient, object, uploadingExistingFiles);
@@ -380,6 +372,8 @@ export {
   authorize,
   authorizeAndUploadFile,
   bytesToMb,
+  checkFileSizeLimit,
+  checkFileType,
   checkFolderCreation,
   extractPath,
   isAllowedFolder,
