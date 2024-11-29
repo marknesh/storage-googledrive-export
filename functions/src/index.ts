@@ -5,6 +5,8 @@ import * as functions from 'firebase-functions';
 import {
   authorizeAndUploadFile,
   cachedDriveFolders,
+  checkFileSizeLimit,
+  checkFileType,
   checkFolderCreation,
   extractPath,
   isAllowedFolder,
@@ -50,6 +52,16 @@ export const exportToDrive = functions.storage
 
       return warningMessage;
     }
+
+    /* Check file size */
+    const fileSizeWarning = checkFileSizeLimit(object);
+
+    if (fileSizeWarning) return fileSizeWarning;
+
+    /* Check file type */
+    const fileTypeWarning = checkFileType(object);
+
+    if (fileTypeWarning) return fileTypeWarning;
 
     /* Check if the uploaded file path matches FOLDER_PATH configuration */
     if (USE_FOLDER_STRUCTURE === 'true' && FOLDER_PATH) {
