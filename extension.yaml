@@ -1,5 +1,5 @@
 name: storage-googledrive-export
-version: 2.0.0-rc.1
+version: 2.0.0
 specVersion: v1beta
 
 displayName: Export Storage Files to Google Drive
