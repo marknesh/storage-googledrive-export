@@ -26,7 +26,7 @@ const eventChannel =
     allowedEventTypes: process.env.EXT_SELECTED_EVENTS,
   });
 
-exports.uploadFile = functions.tasks
+exports.uploadFileTask = functions.tasks
   .taskQueue({
     retryConfig: {
       maxAttempts: 5,
@@ -128,7 +128,7 @@ export const uploadtoDriveOnInstall = functions.tasks
               continue;
             }
 
-            const queue = getFunctions().taskQueue('uploadFile');
+            const queue = getFunctions().taskQueue('uploadFileTask');
 
             return await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
           }
