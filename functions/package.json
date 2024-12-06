@@ -24,6 +24,11 @@
     "husky": "^8.0.3",
     "typescript": "^4.9.0"
   },
+  "overrides": {
+    "firebase-functions-test": {
+      "firebase-admin": "^13.0.1"
+    }
+  },
   "devDependencies": {
     "@types/chai": "^4.3.4",
     "@types/jest": "^29.5.6",
