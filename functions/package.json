@@ -8,7 +8,7 @@
     "test": "tsc && cd __tests__ && tsc && cd ../integration-tests && firebase emulators:exec 'jest' --project demo-test",
     "dev": "cd integration-tests && npm run build:watch | firebase emulators:start --project demo-test",
     "prettier": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "cd .. && husky install"
   },
   "engines": {
     "node": ">=14.0.0",
