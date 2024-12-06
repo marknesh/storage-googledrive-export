@@ -1,7 +1,8 @@
 import { getEventarc } from 'firebase-admin/eventarc';
 import { getExtensions } from 'firebase-admin/extensions';
+import { getFunctions } from 'firebase-admin/functions';
 import { getStorage } from 'firebase-admin/storage';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import {
   authorizeAndUploadFile,
   cachedDriveFolders,
@@ -25,32 +26,30 @@ const eventChannel =
     allowedEventTypes: process.env.EXT_SELECTED_EVENTS,
   });
 
+exports.uploadFile = functions.tasks
+  .taskQueue({
+    retryConfig: {
+      maxAttempts: 5,
+      minBackoffSeconds: 60,
+    },
+    rateLimits: {
+      maxConcurrentDispatches: 6,
+    },
+  })
+  .onDispatch(async (data) => {
+    console.log(data);
+    functions.logger.warn('uploading file');
+    await authorizeAndUploadFile(data.file, true);
+    console.log('uplaoded file complete');
+    return data;
+  });
+
 export const exportToDrive = functions.storage
   .object()
   .onFinalize(async (object) => {
     if (!object?.name) {
       functions.logger.warn('No object found');
       return 'No object found';
-    }
-
-    /* Check if USE_FOLDER_STRUCTURE configuration is false but FOLDER_PATH config is true  */
-    if (USE_FOLDER_STRUCTURE === 'false' && FOLDER_PATH) {
-      const warningMessage =
-        'You have set a folder path but the use folder structure configuration is still false, Please set it to true or leave the folder path empty';
-
-      functions.logger.warn(warningMessage);
-
-      return warningMessage;
-    }
-
-    /* Check if USE_FOLDER_STRUCTURE configuration is true but FOLDER_PATH config is false */
-    if (USE_FOLDER_STRUCTURE === 'true' && !FOLDER_PATH) {
-      const warningMessage =
-        'Please set a folder path in the configuration, since you selected to use the same folder structure';
-
-      functions.logger.warn(warningMessage);
-
-      return warningMessage;
     }
 
     /* Check file size */
@@ -120,15 +119,18 @@ export const uploadtoDriveOnInstall = functions.tasks
     return storage
       .bucket(BUCKET_NAME)
       .getFiles()
-      .then(async (files: functions.storage.ObjectMetadata[][]) => {
+      .then(async (files) => {
+        console.log(files);
         if (files[0].length > 0) {
           for (const file of files[0]) {
-            const result = checkFolderCreation(file);
+            const result = checkFolderCreation(file.metadata);
             if (result !== 'File exists') {
               continue;
             }
 
-            await authorizeAndUploadFile(file, true);
+            const queue = getFunctions().taskQueue('uploadFile');
+
+            return await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
           }
 
           cachedDriveFolders.length = 0;
@@ -140,15 +142,15 @@ export const uploadtoDriveOnInstall = functions.tasks
               'Upload of existing files complete.'
             );
 
-          const existingFiles = files.map((file) => {
+          const existingFiles = files[0].map((file) => {
             return {
-              id: file[0].id,
-              name: file[0].name,
-              bucket: file[0].bucket,
-              contentType: file[0].contentType,
-              mediaLink: file[0].mediaLink,
-              size: file[0].size,
-              selfLink: file[0].selfLink,
+              id: file.id,
+              name: file.name,
+              bucket: file.bucket,
+              contentType: file.metadata.contentType,
+              mediaLink: file.metadata.mediaLink,
+              size: file.metadata.size,
+              selfLink: file.metadata.selfLink,
             };
           });
 

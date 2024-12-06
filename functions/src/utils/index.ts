@@ -1,8 +1,10 @@
+import { FileMetadata } from '@google-cloud/storage';
 import axios from 'axios';
 import { config } from 'dotenv';
 import { initializeApp } from 'firebase-admin/app';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import * as functions from 'firebase-functions';
+import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import { drive_v3 as driveV3, google } from 'googleapis';
 import { Readable } from 'node:stream';
 initializeApp();
@@ -31,11 +33,16 @@ const isAllowedFolder = (objectName: string, folderPaths: string) => {
   const paths = folderPaths.split(',').map((path) => path.trim());
 
   return paths.some((folderPath) => {
-    // Check if folderPath contains any curly braces {} (placeholders)
+    // Remove leading slash if it exists
+    if (folderPath.startsWith('/')) {
+      folderPath = folderPath.slice(1);
+    }
+
     if (!folderPath.endsWith('/')) {
       folderPath += '/';
     }
 
+    // Check if folderPath contains any curly braces {} (placeholders)
     if (
       !folderPath.includes('{') &&
       !folderPath.includes('}') &&
@@ -205,7 +212,7 @@ const getFileName = (filePath: string) => {
 async function uploadFile(
   // eslint-disable-next-line
   authClient: any,
-  object: FileMetadata,
+  object: FileMetadata | ObjectMetadata,
   uploadingExistingFiles?: boolean
 ) {
   if (object?.name) {
@@ -281,7 +288,7 @@ async function uploadFile(
  * @return {string} File uploaded successfully
  */
 const authorizeAndUploadFile = (
-  object: FileMetadata,
+  object: ObjectMetadata | FileMetadata,
   uploadingExistingFiles?: boolean
 ) => {
   return authorize()
@@ -294,7 +301,9 @@ const authorizeAndUploadFile = (
     });
 };
 
-const checkFolderCreation = (file: FileMetadata): string | void => {
+const checkFolderCreation = (
+  file: ObjectMetadata | FileMetadata
+): string | void => {
   if (file.name) {
     const lastSlashIndex = file.name.lastIndexOf('/');
 
@@ -320,7 +329,7 @@ const bytesToMb = (bytes: number) => {
  * @param {FileMetadata} object
  * @return {string|void}
  */
-const checkFileSizeLimit = (object: FileMetadata): string | void => {
+const checkFileSizeLimit = (object: ObjectMetadata): string | void => {
   if (MAXIMUM_FILE_SIZE) {
     const fileSizeLimit = Number(MAXIMUM_FILE_SIZE);
 
@@ -354,7 +363,7 @@ const checkFileSizeLimit = (object: FileMetadata): string | void => {
  * @param {FileMetadata} object
  * @return {string|void}
  */
-const checkFileType = (object: FileMetadata): void | string => {
+const checkFileType = (object: ObjectMetadata): void | string => {
   if (
     FILE_TYPES &&
     object.contentType &&
