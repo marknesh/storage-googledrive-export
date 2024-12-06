@@ -53,7 +53,7 @@ resources:
       taskQueueTrigger: {}
       timeout: 540s
 
-  - name: uploadFile
+  - name: fileTask
     type: firebaseextensions.v1beta.function
     description: >-
       Function that exports all existing files to google drive after install is complete (Optional).
