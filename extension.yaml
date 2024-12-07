@@ -28,6 +28,9 @@ roles:
   - role: storage.admin
     reason: Allows the extension to export files in Cloud Storage to Google Drive.
 
+  - role: cloudtasks.enqueuer
+    reason: Creates tasks to upload files.
+
 resources:
   - name: exportToDrive
     type: firebaseextensions.v1beta.function
