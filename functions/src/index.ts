@@ -19,7 +19,6 @@ const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH?.trim();
 const UPLOAD_EXISTING_FILES = process.env.UPLOAD_EXISTING_FILES;
 const USE_FOLDER_STRUCTURE = process.env.USE_FOLDER_STRUCTURE;
-
 const eventChannel =
   process.env.EVENTARC_CHANNEL &&
   getEventarc().channel(process.env.EVENTARC_CHANNEL, {

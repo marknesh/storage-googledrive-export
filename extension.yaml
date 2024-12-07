@@ -24,6 +24,9 @@ apis:
   - apiName: drive.googleapis.com
     reason: Exports files from your Cloud Storage bucket to Google Drive.
 
+  -apiName: cloudtasks.tasks.create
+   reason: Creates tasks to upload files.
+
 roles:
   - role: storage.admin
     reason: Allows the extension to export files in Cloud Storage to Google Drive.
