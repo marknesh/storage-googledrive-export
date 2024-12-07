@@ -127,7 +127,11 @@ export const uploadtoDriveOnInstall = functions.tasks
               continue;
             }
 
-            const queue = getFunctions().taskQueue('fileTask');
+            functions.logger.log(`${process.env.EXT_INSTANCE_ID}-fileTask`);
+
+            const queue = getFunctions().taskQueue(
+              `${process.env.EXT_INSTANCE_ID}-fileTask`
+            );
 
             return await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
           }
