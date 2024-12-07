@@ -28,8 +28,8 @@ roles:
   - role: storage.admin
     reason: Allows the extension to export files in Cloud Storage to Google Drive.
 
-  - role: cloudtasks.tasks.create
-    reason: Creates tasks to upload files.
+  - role: iam.serviceAccounts.actAs
+    reason: Run operations as the service account.
 
 resources:
   - name: exportToDrive
