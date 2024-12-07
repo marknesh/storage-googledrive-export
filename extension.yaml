@@ -28,9 +28,6 @@ roles:
   - role: storage.admin
     reason: Allows the extension to export files in Cloud Storage to Google Drive.
 
-  - role: iam.serviceAccountUser
-    reason: Run operations as the service account.
-
 resources:
   - name: exportToDrive
     type: firebaseextensions.v1beta.function
