@@ -63,7 +63,7 @@ resources:
       taskQueueTrigger:
         retryConfig:
           maxAttempts: 1
-          maxRetryDuration: 0s
+          maxRetryDuration: 1s
       timeout: 540s
 
 params:
