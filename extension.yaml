@@ -60,7 +60,10 @@ resources:
     properties:
       location: ${param:LOCATION}
       runtime: nodejs18
-      taskQueueTrigger: {}
+      taskQueueTrigger:
+        retryConfig:
+          maxAttempts: 1
+          maxRetryDuration: 0s
       timeout: 540s
 
 params:

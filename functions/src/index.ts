@@ -25,22 +25,6 @@ const eventChannel =
     allowedEventTypes: process.env.EXT_SELECTED_EVENTS,
   });
 
-exports.fileTask = functions.tasks
-  .taskQueue({
-    retryConfig: {
-      maxAttempts: 5,
-      minBackoffSeconds: 60,
-    },
-    rateLimits: {
-      maxConcurrentDispatches: 6,
-    },
-  })
-  .onDispatch(async (data) => {
-    console.log(data);
-    functions.logger.warn('uploading file');
-    return authorizeAndUploadFile(data.file, true);
-  });
-
 export const exportToDrive = functions.storage
   .object()
   .onFinalize(async (object) => {
@@ -101,6 +85,10 @@ export const exportToDrive = functions.storage
     }
   });
 
+exports.fileTask = functions.tasks.taskQueue().onDispatch(async (data) => {
+  return authorizeAndUploadFile(data.file, true);
+});
+
 export const uploadtoDriveOnInstall = functions.tasks
   .taskQueue()
   .onDispatch(async () => {
@@ -119,7 +107,6 @@ export const uploadtoDriveOnInstall = functions.tasks
       .then(async (files) => {
         if (files[0].length > 0) {
           const [files] = await storage.bucket(BUCKET_NAME).getFiles();
-          console.log(files);
 
           await Promise.all(
             files.map(async (file) => {
