@@ -38,7 +38,7 @@ exports.fileTask = functions.tasks
   .onDispatch(async (data) => {
     console.log(data);
     functions.logger.warn('uploading file');
-    return await authorizeAndUploadFile(data.file, true);
+    return authorizeAndUploadFile(data.file, true);
   });
 
 export const exportToDrive = functions.storage
