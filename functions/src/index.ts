@@ -148,7 +148,7 @@ export const uploadtoDriveOnInstall = functions.tasks
               'Upload of existing files complete.'
             );
 
-          const existingFiles = files[0].map((file) => {
+          const existingFiles = files.map((file) => {
             return {
               id: file.id,
               name: file.name,
