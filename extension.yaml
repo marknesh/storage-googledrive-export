@@ -58,7 +58,10 @@ resources:
     description: >-
       Function that exports all existing files to google drive after install is complete (Optional).
     properties:
+      location: ${param:LOCATION}
+      runtime: nodejs18
       taskQueueTrigger: {}
+      timeout: 540s
 
 params:
   - param: BUCKET_NAME

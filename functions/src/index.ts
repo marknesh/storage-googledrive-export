@@ -127,13 +127,11 @@ export const uploadtoDriveOnInstall = functions.tasks
               continue;
             }
 
-            functions.logger.log(`${process.env.EXT_INSTANCE_ID}-fileTask`);
-
             const queue = getFunctions().taskQueue(
               `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
             );
 
-            return await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
+            await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
           }
 
           cachedDriveFolders.length = 0;
