@@ -38,9 +38,7 @@ exports.fileTask = functions.tasks
   .onDispatch(async (data) => {
     console.log(data);
     functions.logger.warn('uploading file');
-    await authorizeAndUploadFile(data.file, true);
-    console.log('uplaoded file complete');
-    return data;
+    return await authorizeAndUploadFile(data.file, true);
   });
 
 export const exportToDrive = functions.storage
@@ -119,20 +117,24 @@ export const uploadtoDriveOnInstall = functions.tasks
       .bucket(BUCKET_NAME)
       .getFiles()
       .then(async (files) => {
-        console.log(files);
         if (files[0].length > 0) {
-          for (const file of files[0]) {
-            const result = checkFolderCreation(file.metadata);
-            if (result !== 'File exists') {
-              continue;
-            }
+          const [files] = await storage.bucket(BUCKET_NAME).getFiles();
+          console.log(files);
 
-            const queue = getFunctions().taskQueue(
-              `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
-            );
+          await Promise.all(
+            files.map(async (file) => {
+              const result = checkFolderCreation(file.metadata);
+              if (result !== 'File exists') {
+                return;
+              }
 
-            await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
-          }
+              const queue = getFunctions().taskQueue(
+                `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
+              );
+
+              await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
+            })
+          );
 
           cachedDriveFolders.length = 0;
 
