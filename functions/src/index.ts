@@ -132,7 +132,10 @@ export const uploadtoDriveOnInstall = functions.tasks
                 `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
               );
 
-              await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
+              return await queue.enqueue(
+                { file },
+                { scheduleDelaySeconds: 10 }
+              );
             })
           );
 
