@@ -108,23 +108,18 @@ export const uploadtoDriveOnInstall = functions.tasks
         if (files[0].length > 0) {
           const [files] = await storage.bucket(BUCKET_NAME).getFiles();
 
-          await Promise.all(
-            files.map(async (file) => {
-              const result = checkFolderCreation(file.metadata);
-              if (result !== 'File exists') {
-                return;
-              }
+          for (const file of files) {
+            const result = checkFolderCreation(file.metadata);
+            if (result !== 'File exists') {
+              continue;
+            }
 
-              const queue = getFunctions().taskQueue(
-                `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
-              );
+            const queue = getFunctions().taskQueue(
+              `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
+            );
 
-              return await queue.enqueue(
-                { file },
-                { scheduleDelaySeconds: 10 }
-              );
-            })
-          );
+            await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
+          }
 
           cachedDriveFolders.length = 0;
 

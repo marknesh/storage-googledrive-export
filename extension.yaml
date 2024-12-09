@@ -62,10 +62,10 @@ resources:
       runtime: nodejs18
       taskQueueTrigger:
         retryConfig:
-          maxAttempts: 1
-          maxRetryDuration: 1s
+          maxAttempts: 100
+          maxBackoffSeconds: 60
+          maxRetryDuration: 530s
       timeout: 540s
-      maxInstances: 1
 
 params:
   - param: BUCKET_NAME
