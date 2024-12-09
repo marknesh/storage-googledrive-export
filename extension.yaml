@@ -64,9 +64,8 @@ resources:
         rateLimits:
           maxConcurrentDispatches: 1
         retryConfig:
-          maxAttempts: 20
           maxBackoffSeconds: 60
-          maxRetryDuration: 530s
+          maxRetryDuration: 530
       timeout: 540s
 
 params:
