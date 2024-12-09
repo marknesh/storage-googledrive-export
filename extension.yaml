@@ -61,8 +61,10 @@ resources:
       location: ${param:LOCATION}
       runtime: nodejs18
       taskQueueTrigger:
+        rateLimits:
+          max-concurrent-dispatches: 1
         retryConfig:
-          maxAttempts: 100
+          maxAttempts: 20
           maxBackoffSeconds: 60
           maxRetryDuration: 530s
       timeout: 540s
