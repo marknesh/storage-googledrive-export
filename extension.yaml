@@ -65,6 +65,7 @@ resources:
           maxAttempts: 1
           maxRetryDuration: 1s
       timeout: 540s
+      maxInstances: 1
 
 params:
   - param: BUCKET_NAME
