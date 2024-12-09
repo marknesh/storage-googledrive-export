@@ -62,7 +62,7 @@ resources:
       runtime: nodejs18
       taskQueueTrigger:
         rateLimits:
-          max-concurrent-dispatches: 1
+          maxConcurrentDispatches: 1
         retryConfig:
           maxAttempts: 20
           maxBackoffSeconds: 60
