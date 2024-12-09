@@ -65,7 +65,7 @@ resources:
           maxConcurrentDispatches: 1
         retryConfig:
           maxBackoffSeconds: 60
-          maxRetryDuration: 530
+          maxRetrySeconds: 530
       timeout: 540s
 
 params:
