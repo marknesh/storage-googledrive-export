@@ -27,7 +27,13 @@ const eventChannel =
 
 export const exportToDrive = functions.storage
   .object()
-  .onFinalize(async (object) => {
+  .onFinalize(async (object, event) => {
+    /* prevent retry if large file (close to the timeout limit of 540 seconds) */
+    const eventAgeMs = Date.now() - Date.parse(event.timestamp);
+    const eventMaxAgeMs = 500000;
+    if (eventAgeMs > eventMaxAgeMs) {
+      return;
+    }
     if (!object?.name) {
       functions.logger.warn('No object found');
       return 'No object found';
