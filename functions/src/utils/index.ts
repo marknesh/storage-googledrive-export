@@ -1,10 +1,10 @@
+import axios from 'axios';
 import { config } from 'dotenv';
+import { initializeApp } from 'firebase-admin/app';
+import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import * as functions from 'firebase-functions';
 import { drive_v3 as driveV3, google } from 'googleapis';
-import axios from 'axios';
 import { Readable } from 'node:stream';
-import { getDownloadURL, getStorage } from 'firebase-admin/storage';
-import { initializeApp } from 'firebase-admin/app';
 initializeApp();
 
 config();
@@ -13,6 +13,10 @@ const BUCKET_NAME = process.env.BUCKET_NAME;
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS?.trim() as string;
 const USE_FOLDER_STRUCTURE = process.env.USE_FOLDER_STRUCTURE;
 const FOLDER_ID = process.env.FOLDER_ID?.trim() as string;
+const GOOGLE_APPLICATION_CREDENTIALS =
+  process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
+const MAXIMUM_FILE_SIZE = process.env.MAXIMUM_FILE_SIZE?.trim();
+const FILE_TYPES = process.env.FILE_TYPES?.trim().toLowerCase();
 
 const storage = getStorage();
 
@@ -23,8 +27,35 @@ let currentParentId: string = FOLDER_ID;
 export const cachedDriveFolders: cachedDriveFoldersProps[] = [];
 
 /* Check if the folder with the object is in the list of allowed folders */
-const isAllowedFolder = (objectName: string, folderPaths: string[]) => {
-  return folderPaths.some((str) => objectName.includes(str.trim()));
+const isAllowedFolder = (objectName: string, folderPaths: string) => {
+  const paths = folderPaths.split(',').map((path) => path.trim());
+
+  return paths.some((folderPath) => {
+    // Check if folderPath contains any curly braces {} (placeholders)
+    if (!folderPath.endsWith('/')) {
+      folderPath += '/';
+    }
+
+    if (
+      !folderPath.includes('{') &&
+      !folderPath.includes('}') &&
+      objectName.startsWith(folderPath)
+    ) {
+      return true;
+    }
+
+    if (folderPath.includes('{') && folderPath.includes('}')) {
+      // Replace all placeholders (inside { }) with a regex pattern to match any string except /
+      const regexPattern = folderPath.replace(/\{[^}]+\}/g, '[^/]+');
+
+      const regex = new RegExp(`^${regexPattern}$`);
+
+      // Test the filePath against the regex
+      return regex.test(objectName);
+    } else {
+      return false;
+    }
+  });
 };
 
 /**
@@ -37,12 +68,9 @@ const isAllowedFolder = (objectName: string, folderPaths: string[]) => {
 function extractPath(objectName: string) {
   const slashesCount = (objectName.match(/\//g) || []).length;
 
-  if (slashesCount > 1) {
-    const secondLastSlashIndex = objectName.lastIndexOf(
-      '/',
-      objectName.lastIndexOf('/') - 1
-    );
-    return objectName.slice(secondLastSlashIndex + 1);
+  if (slashesCount >= 1) {
+    const lastSlashIndex = objectName.lastIndexOf('/');
+    return objectName.substring(0, lastSlashIndex + 1);
   } else {
     return objectName;
   }
@@ -57,13 +85,17 @@ function extractPath(objectName: string) {
 async function authorize() {
   const JWTClient = await google.auth.getClient({
     scopes: SCOPES,
-    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    keyFile: GOOGLE_APPLICATION_CREDENTIALS,
   });
 
   return JWTClient;
 }
 
-const createSubFolders = async (filePath: string, drive: driveV3.Drive) => {
+const createSubFolders = async (
+  filePath: string,
+  drive: driveV3.Drive,
+  uploadingExistingFiles?: boolean
+) => {
   currentParentId = FOLDER_ID;
 
   const firstSlash = filePath.indexOf('/');
@@ -77,25 +109,34 @@ const createSubFolders = async (filePath: string, drive: driveV3.Drive) => {
       q: `name='${folder}' and mimeType='application/vnd.google-apps.folder' and '${currentParentId}' in parents and trashed=false`,
     });
 
-    const filteredCachedFolders = cachedDriveFolders.filter(
-      (file) =>
-        file.index === index &&
-        file.folder === folder &&
-        file.firstFolder === firstFolder
-    );
+    const folderPath = folders.slice(0, index + 1).join('/');
+
+    const filteredCachedFolders = uploadingExistingFiles
+      ? cachedDriveFolders.filter(
+          (file) =>
+            file.index === index &&
+            file.folder === folder &&
+            file.firstFolder === firstFolder &&
+            file.folderPath === folderPath
+        )
+      : null;
 
     const folderExists =
       driveFolders?.data?.files && driveFolders?.data.files?.length > 0;
 
     /* drive api takes time to load newly created files, so will use it only when
-    the folder does not exist in local cache.
+    the folder does not exist in local cache.> Cache is used only when
+    uploading existing files since firebase cloud functions are stateless
 
     https://stackoverflow.com/questions/67571418/google-drive-api-files-list-not-refreshing
     */
 
-    if (filteredCachedFolders?.length > 0 || folderExists) {
+    if (
+      (filteredCachedFolders && filteredCachedFolders?.length > 0) ||
+      folderExists
+    ) {
       const id =
-        filteredCachedFolders[0]?.id ||
+        (filteredCachedFolders && filteredCachedFolders[0]?.id) ||
         (driveFolders?.data?.files && driveFolders?.data?.files[0]?.id);
 
       if (id) {
@@ -130,6 +171,7 @@ const createSubFolders = async (filePath: string, drive: driveV3.Drive) => {
           index,
           id: driveResponse?.data?.id,
           firstFolder,
+          folderPath,
         });
       }
     }
@@ -157,12 +199,14 @@ const getFileName = (filePath: string) => {
  *
  * @param {JWT} authClient
  * @param {FileMetadata} object
+ * @param {boolean} uploadingExistingFiles
  * @return {string} File uploaded successfully
  */
 async function uploadFile(
   // eslint-disable-next-line
   authClient: any,
-  object: FileMetadata
+  object: FileMetadata,
+  uploadingExistingFiles?: boolean
 ) {
   if (object?.name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
@@ -172,7 +216,11 @@ async function uploadFile(
     const slashesCount = (object.name.match(/\//g) || []).length;
 
     if (USE_FOLDER_STRUCTURE === 'true' && slashesCount > 0) {
-      const response = await createSubFolders(object.name, drive);
+      const response = await createSubFolders(
+        object.name,
+        drive,
+        uploadingExistingFiles
+      );
 
       if (!response?.data?.id) return;
     }
@@ -218,20 +266,27 @@ async function uploadFile(
         return error.message;
       });
   } else {
-    functions.logger.warn('No media link found');
-    return 'No media link found';
+    const warningMessage = 'No media link found';
+
+    functions.logger.warn(warningMessage);
+
+    return warningMessage;
   }
 }
 
 /**
  *
  * @param {FileMetadata} object
+ * @param {boolean} uploadingExistingFiles
  * @return {string} File uploaded successfully
  */
-const authorizeAndUploadFile = (object: FileMetadata) => {
+const authorizeAndUploadFile = (
+  object: FileMetadata,
+  uploadingExistingFiles?: boolean
+) => {
   return authorize()
     .then((authClient) => {
-      return uploadFile(authClient, object);
+      return uploadFile(authClient, object, uploadingExistingFiles);
     })
     .catch((error) => {
       functions.logger.warn(error.message);
@@ -258,12 +313,69 @@ const bytesToMb = (bytes: number) => {
   return bytes / (1024 * 1024);
 };
 
+/**
+ *
+ *  Check the file size limit - if configured
+ *
+ * @param {FileMetadata} object
+ * @return {string|void}
+ */
+const checkFileSizeLimit = (object: FileMetadata): string | void => {
+  if (MAXIMUM_FILE_SIZE) {
+    const fileSizeLimit = Number(MAXIMUM_FILE_SIZE);
+
+    if (isNaN(fileSizeLimit)) {
+      const warningMessage =
+        'File Size limit configuration is not a valid number. Please enter only a number.';
+
+      functions.logger.warn(warningMessage);
+
+      return warningMessage;
+    }
+
+    let fileSizeinMb = bytesToMb(Number(object.size));
+
+    /* Round up to two decimal places */
+    fileSizeinMb = Math.round(fileSizeinMb * 100) / 100;
+
+    if (fileSizeinMb > fileSizeLimit) {
+      const warningMessage = `File size is greater than the maximum file size limit of ${fileSizeLimit}MB. You can always change this in the extension configuration.`;
+
+      functions.logger.warn(warningMessage);
+
+      return warningMessage;
+    }
+  }
+};
+
+/**
+ * Check file type - if configured
+ *
+ * @param {FileMetadata} object
+ * @return {string|void}
+ */
+const checkFileType = (object: FileMetadata): void | string => {
+  if (
+    FILE_TYPES &&
+    object.contentType &&
+    !FILE_TYPES.includes(object.contentType)
+  ) {
+    const warningMessage = `File type (${object.contentType}) is not allowed, because you did not specify it in the Allowed File types parameter`;
+
+    functions.logger.warn(warningMessage);
+
+    return warningMessage;
+  }
+};
+
 export {
   authorize,
-  uploadFile,
+  authorizeAndUploadFile,
+  bytesToMb,
+  checkFileSizeLimit,
+  checkFileType,
+  checkFolderCreation,
   extractPath,
   isAllowedFolder,
-  authorizeAndUploadFile,
-  checkFolderCreation,
-  bytesToMb,
+  uploadFile,
 };

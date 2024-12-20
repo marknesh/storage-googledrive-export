@@ -59,3 +59,9 @@
 ## Version 0.1.5
 
 - Added option to set maximum file size limit to upload to google drive.
+
+## Version 2.0.0
+
+- Added support for dynamic folder paths
+
+- Fixed file upload issue when folders are specified

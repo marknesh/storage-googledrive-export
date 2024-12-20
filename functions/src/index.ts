@@ -1,23 +1,23 @@
+import { getEventarc } from 'firebase-admin/eventarc';
+import { getExtensions } from 'firebase-admin/extensions';
+import { getStorage } from 'firebase-admin/storage';
 import * as functions from 'firebase-functions';
 import {
+  authorizeAndUploadFile,
+  cachedDriveFolders,
+  checkFileSizeLimit,
+  checkFileType,
+  checkFolderCreation,
   extractPath,
   isAllowedFolder,
-  authorizeAndUploadFile,
-  checkFolderCreation,
-  cachedDriveFolders,
-  bytesToMb,
 } from './utils';
-import { getStorage } from 'firebase-admin/storage';
-import { getExtensions } from 'firebase-admin/extensions';
-import { getEventarc } from 'firebase-admin/eventarc';
 
 const storage = getStorage();
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
-const FOLDER_PATH = process.env.FOLDER_PATH;
-const FILE_TYPES = process.env.FILE_TYPES;
+const FOLDER_PATH = process.env.FOLDER_PATH?.trim();
 const UPLOAD_EXISTING_FILES = process.env.UPLOAD_EXISTING_FILES;
-const MAXIMUM_FILE_SIZE = process.env.MAXIMUM_FILE_SIZE;
+const USE_FOLDER_STRUCTURE = process.env.USE_FOLDER_STRUCTURE;
 
 const eventChannel =
   process.env.EVENTARC_CHANNEL &&
@@ -33,53 +33,56 @@ export const exportToDrive = functions.storage
       return 'No object found';
     }
 
-    /* Check for file size limit */
-    if (MAXIMUM_FILE_SIZE) {
-      let fileSizeinMb = bytesToMb(Number(object.size));
+    /* Check if USE_FOLDER_STRUCTURE configuration is false but FOLDER_PATH config is true  */
+    if (USE_FOLDER_STRUCTURE === 'false' && FOLDER_PATH) {
+      const warningMessage =
+        'You have set a folder path but the use folder structure configuration is still false, Please set it to true or leave the folder path empty';
 
-      /* Round up to two decimal places */
-      fileSizeinMb = Math.round(fileSizeinMb * 100) / 100;
+      functions.logger.warn(warningMessage);
 
-      const fileSizeLimit = Number(MAXIMUM_FILE_SIZE);
-      if (fileSizeinMb > fileSizeLimit) {
-        functions.logger.warn(
-          `File size is greater than the maximum file size limit of ${fileSizeLimit}MB`
-        );
-        return `File size is greater than the maximum file size limit of ${fileSizeLimit}MB`;
-      }
+      return warningMessage;
     }
 
-    /* Check file type if specified */
-    if (
-      FILE_TYPES &&
-      object.contentType &&
-      !FILE_TYPES.includes(object.contentType)
-    ) {
-      functions.logger.warn(
-        `File type (${object.contentType}) is not allowed, because you did not specify it in the Allowed File types parameter`
-      );
-      return `File type (${object.contentType}) is not allowed, because you did not specify it in the Allowed File types parameter`;
+    /* Check if USE_FOLDER_STRUCTURE configuration is true but FOLDER_PATH config is false */
+    if (USE_FOLDER_STRUCTURE === 'true' && !FOLDER_PATH) {
+      const warningMessage =
+        'Please set a folder path in the configuration, since you selected to use the same folder structure';
+
+      functions.logger.warn(warningMessage);
+
+      return warningMessage;
     }
 
-    /* Check if user specified a FOLDER_PATH parameter */
-    if (FOLDER_PATH) {
+    /* Check file size */
+    const fileSizeWarning = checkFileSizeLimit(object);
+
+    if (fileSizeWarning) return fileSizeWarning;
+
+    /* Check file type */
+    const fileTypeWarning = checkFileType(object);
+
+    if (fileTypeWarning) return fileTypeWarning;
+
+    /* Check if the uploaded file path matches FOLDER_PATH configuration */
+    if (USE_FOLDER_STRUCTURE === 'true' && FOLDER_PATH) {
       const result = checkFolderCreation(object);
 
       if (result !== 'File exists') {
         return result;
       }
 
-      const folderPaths = FOLDER_PATH.split(',');
-
       const folderWithObject = extractPath(object.name);
+
+      const folderPaths = FOLDER_PATH;
 
       if (isAllowedFolder(folderWithObject, folderPaths)) {
         return authorizeAndUploadFile(object);
       } else {
-        functions.logger.warn(
-          `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the Cloud Storage folder parameter, in order for the extension to work.`
-        );
-        return `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the Cloud Storage folder parameter, in order for the extension to work.`;
+        const warningMessage = `Please upload files to one of the folder paths in (${FOLDER_PATH}) as you specified in the Cloud Storage folder parameter, in order for the extension to work.`;
+
+        functions.logger.warn(warningMessage);
+
+        return warningMessage;
       }
     } else {
       const result = checkFolderCreation(object);
@@ -125,7 +128,7 @@ export const uploadtoDriveOnInstall = functions.tasks
               continue;
             }
 
-            await authorizeAndUploadFile(file);
+            await authorizeAndUploadFile(file, true);
           }
 
           cachedDriveFolders.length = 0;

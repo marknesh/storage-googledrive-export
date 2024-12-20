@@ -1,5 +1,5 @@
 name: storage-googledrive-export
-version: 0.1.5
+version: 2.0.0
 specVersion: v1beta
 
 displayName: Export Storage Files to Google Drive
@@ -39,7 +39,7 @@ resources:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${BUCKET_NAME}
         failurePolicy: { retry: {} }
-      runtime: 'nodejs18'
+      runtime: "nodejs18"
       maxInstances: 1
       timeout: 540s
 
@@ -64,7 +64,9 @@ params:
 
   - param: FOLDER_PATH
     label: Cloud Storage folder (Not including heading slash)
-    description: Which folder do you want to listen to upload changes? e.g `photos` or to listen to multiple/sub folders e.g `photos,users` . This field is `optional` . If specified, this extension will only run when a file is uploaded in the specified folders.
+    description:
+      Which folder do you want to listen to upload changes? Leave empty if you want to upload all files to Google Drive. Enter the full paths of the folders separated by commas.
+      e.g `users/photos,gallery` or use curly braces for dynamic folders e.g `users/{userId}/images, projects/{projectId}/files`
     type: string
     required: false
 
@@ -90,8 +92,8 @@ params:
   - param: MAXIMUM_FILE_SIZE
     label: Maximum file size to upload
     description: >-
-     The maximum file size to upload to google drive in megabytes(MB).
-     This field is `optional`.
+      The maximum file size to upload to google drive in megabytes(MB). e.g `200`
+      This field is `optional`.
     type: string
     required: false
     immutable: false
