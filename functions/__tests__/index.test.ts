@@ -3,12 +3,12 @@
  * An example .env file is also in the integrations folder
  *
  */
-import 'jest';
+import { getStorage } from 'firebase-admin/storage';
 import * as functions from 'firebase-functions-test';
-import { exportToDrive } from '../src/index';
 import { WrappedFunction } from 'firebase-functions-test/lib/v1';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
-import { getStorage } from 'firebase-admin/storage';
+import 'jest';
+import { exportToDrive } from '../src/index';
 
 const storage = getStorage();
 
@@ -84,7 +84,7 @@ describe('upload file to storage and export to google drive', () => {
       bucket: 'demo-test.appspot.com',
       name: filePath,
       contentType: 'image/png',
-      /* size should be less than MAXIMUM_FILE_SIZE  */
+      /* size should be greater than MAXIMUM_FILE_SIZE  */
       size: '3145728',
     };
 

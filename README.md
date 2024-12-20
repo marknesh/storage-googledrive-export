@@ -37,13 +37,14 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 
 - BUCKET_NAME: Which bucket do you want use? This field is `optional` , we will use the default bucket if left empty.
 
-- FOLDER_PATH: Which folder do you want to listen to upload changes? e.g `photos` or to listen to multiple/sub folders e.g `photos,users` . This field is `optional` . If specified, this extension will only run when a file is uploaded in the specified folders. If you have a sub-folder within another folder and you want to monitor upload changes in both folders, make sure to **include the sub-folder** as well. The extension will not function properly if you only add the parent folder, as it will not listen to the sub-folder unless it is added.
+- FOLDER_PATH: Which folder do you want to listen to upload changes? Leave empty if you want to upload all files to Google Drive. Enter the full paths of the folders separated by commas.
+  e.g `users/photos,gallery` or use curly braces for dynamic folders e.g `users/{userId}/images, projects/{projectId}/files`.
 
 - FOLDER_ID: The ID of the folder in google drive where you want to export your files.This can be found in the url after creating or accessing the folder e.g `https://drive.google.com/drive/u/0/folders/{FOLDER_ID}`
 
 - FILE_TYPES: The MIME types of the files you want to upload to Google drive. The most common MIME types can be referenced [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types). This field is `optional` e.g `image/jpeg` or to allow more than one MIME type, please separate each type with a comma e.g `image/jpeg,video/mp4`
 
-- MAXIMUM_FILE_SIZE: The maximum file size to upload to google drive in megabytes(MB). This field is `optional`.
+- MAXIMUM_FILE_SIZE: The maximum file size to upload to google drive in megabytes(MB). e.g `200` This field is `optional`.
 
 - UPLOAD_EXISTING_FILES: Do you want to upload the existing files in your storage bucket to Google drive?
 
