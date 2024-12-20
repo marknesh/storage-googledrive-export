@@ -1,7 +1,8 @@
 import { getEventarc } from 'firebase-admin/eventarc';
 import { getExtensions } from 'firebase-admin/extensions';
+import { getFunctions } from 'firebase-admin/functions';
 import { getStorage } from 'firebase-admin/storage';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import {
   authorizeAndUploadFile,
   cachedDriveFolders,
@@ -18,7 +19,6 @@ const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH?.trim();
 const UPLOAD_EXISTING_FILES = process.env.UPLOAD_EXISTING_FILES;
 const USE_FOLDER_STRUCTURE = process.env.USE_FOLDER_STRUCTURE;
-
 const eventChannel =
   process.env.EVENTARC_CHANNEL &&
   getEventarc().channel(process.env.EVENTARC_CHANNEL, {
@@ -27,30 +27,16 @@ const eventChannel =
 
 export const exportToDrive = functions.storage
   .object()
-  .onFinalize(async (object) => {
+  .onFinalize(async (object, event) => {
+    /* prevent retry if large file (close to the timeout limit of 540 seconds) */
+    const eventAgeMs = Date.now() - Date.parse(event.timestamp);
+    const eventMaxAgeMs = 500000;
+    if (eventAgeMs > eventMaxAgeMs) {
+      return;
+    }
     if (!object?.name) {
       functions.logger.warn('No object found');
       return 'No object found';
-    }
-
-    /* Check if USE_FOLDER_STRUCTURE configuration is false but FOLDER_PATH config is true  */
-    if (USE_FOLDER_STRUCTURE === 'false' && FOLDER_PATH) {
-      const warningMessage =
-        'You have set a folder path but the use folder structure configuration is still false, Please set it to true or leave the folder path empty';
-
-      functions.logger.warn(warningMessage);
-
-      return warningMessage;
-    }
-
-    /* Check if USE_FOLDER_STRUCTURE configuration is true but FOLDER_PATH config is false */
-    if (USE_FOLDER_STRUCTURE === 'true' && !FOLDER_PATH) {
-      const warningMessage =
-        'Please set a folder path in the configuration, since you selected to use the same folder structure';
-
-      functions.logger.warn(warningMessage);
-
-      return warningMessage;
     }
 
     /* Check file size */
@@ -105,6 +91,10 @@ export const exportToDrive = functions.storage
     }
   });
 
+exports.fileTask = functions.tasks.taskQueue().onDispatch(async (data) => {
+  return authorizeAndUploadFile(data.file, true);
+});
+
 export const uploadtoDriveOnInstall = functions.tasks
   .taskQueue()
   .onDispatch(async () => {
@@ -120,15 +110,21 @@ export const uploadtoDriveOnInstall = functions.tasks
     return storage
       .bucket(BUCKET_NAME)
       .getFiles()
-      .then(async (files: functions.storage.ObjectMetadata[][]) => {
+      .then(async (files) => {
         if (files[0].length > 0) {
-          for (const file of files[0]) {
-            const result = checkFolderCreation(file);
+          const [files] = await storage.bucket(BUCKET_NAME).getFiles();
+
+          for (const file of files) {
+            const result = checkFolderCreation(file.metadata);
             if (result !== 'File exists') {
               continue;
             }
 
-            await authorizeAndUploadFile(file, true);
+            const queue = getFunctions().taskQueue(
+              `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
+            );
+
+            await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
           }
 
           cachedDriveFolders.length = 0;
@@ -142,13 +138,13 @@ export const uploadtoDriveOnInstall = functions.tasks
 
           const existingFiles = files.map((file) => {
             return {
-              id: file[0].id,
-              name: file[0].name,
-              bucket: file[0].bucket,
-              contentType: file[0].contentType,
-              mediaLink: file[0].mediaLink,
-              size: file[0].size,
-              selfLink: file[0].selfLink,
+              id: file.id,
+              name: file.name,
+              bucket: file.bucket,
+              contentType: file.metadata.contentType,
+              mediaLink: file.metadata.mediaLink,
+              size: file.metadata.size,
+              selfLink: file.metadata.selfLink,
             };
           });
 
