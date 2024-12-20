@@ -12,7 +12,16 @@ When a file is uploaded to cloud storage, this extension uploads that file to go
 **To allow existing files to be uploaded to Google drive:**
 
 - **Share Editor** access to your folder with the **Extension Service Account Email** when the extension installation is **halfway complete**, in the format `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com` or else you will receive a warning message `Since there is no Google account associated with this email address...`, because the service account will not yet be created.
+
 - This allows existing files to be uploaded to Google Drive immediately after this extension installation is complete, should you choose `yes` for that option.
+
+- Go to [Google Cloud IAM](https://console.cloud.google.com/iam-admin/iam)
+
+- Add role of `Service Account User` to the extension service account `ext-storage-googledrive-export@<YOUR-PROJECT-ID>.iam.gserviceaccount.com`
+
+- Add role of `Cloud Tasks Enqueuer` to the firebase admin sdk service account
+
+- Go to [tasks queue](https://console.cloud.google.com/cloudtasks/) and edit `ext-storage-googledrive-export-export-fileTask` **Max retry duration** to `520` or a value below `540` (the maximum timeout for Firebase Cloud Functions V1) but not `0`. This is the maximum amount of time for retrying a failed task measured from when the task was first attempted. This adjustment ensures that retries do not occur after the function times out, which can happen when processing files that are too large.
 
 **To upload new files to Google drive after extension is installed:**
 

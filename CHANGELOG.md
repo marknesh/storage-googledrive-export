@@ -64,4 +64,8 @@
 
 - Added support for dynamic folder paths
 
+- Upload existing files to drive without duplication
+
 - Fixed file upload issue when folders are specified
+
+- Updated docs with clear instructions
