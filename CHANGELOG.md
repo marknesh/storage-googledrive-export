@@ -69,3 +69,7 @@
 - Fixed file upload issue when folders are specified
 
 - Updated docs with clear instructions
+
+## Version 2.0.1
+
+- Added configuration option to exclude certain file names e.g `_500x500`
