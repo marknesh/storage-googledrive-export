@@ -19,6 +19,8 @@ const GOOGLE_APPLICATION_CREDENTIALS =
   process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
 const MAXIMUM_FILE_SIZE = process.env.MAXIMUM_FILE_SIZE?.trim();
 const FILE_TYPES = process.env.FILE_TYPES?.trim().toLowerCase();
+const EXCLUDE_FILE_NAME_CONTAINS =
+  process.env.EXCLUDE_FILE_NAME_CONTAINS?.trim();
 
 const storage = getStorage();
 
@@ -377,6 +379,33 @@ const checkFileType = (object: ObjectMetadata): void | string => {
   }
 };
 
+/**
+ * Check if file names includes excluded words
+ *
+ * @param {ObjectMetadata} object
+ * @return {boolean}
+ */
+const isAllowedFileName = (object: ObjectMetadata): boolean => {
+  if (!EXCLUDE_FILE_NAME_CONTAINS) {
+    return true;
+  }
+
+  const excludedNames = EXCLUDE_FILE_NAME_CONTAINS.split(',').map((word) =>
+    word.trim()
+  );
+
+  const isAllowed = !excludedNames.some(
+    (excluded) => object.name && object.name.includes(excluded)
+  );
+
+  if (!isAllowed) {
+    const warningMessage = `File (${object.name}) will not be uploaded to drive since the file name includes a word from the excluded list (${EXCLUDE_FILE_NAME_CONTAINS}) in the extension configuration.`;
+    functions.logger.warn(warningMessage);
+  }
+
+  return isAllowed;
+};
+
 export {
   authorize,
   authorizeAndUploadFile,
@@ -385,6 +414,7 @@ export {
   checkFileType,
   checkFolderCreation,
   extractPath,
+  isAllowedFileName,
   isAllowedFolder,
   uploadFile,
 };

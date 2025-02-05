@@ -10,6 +10,7 @@ import {
   checkFileType,
   checkFolderCreation,
   extractPath,
+  isAllowedFileName,
   isAllowedFolder,
 } from './utils';
 
@@ -37,6 +38,11 @@ export const exportToDrive = functions.storage
     if (!object?.name) {
       functions.logger.warn('No object found');
       return 'No object found';
+    }
+
+    /* Check if file name is allowed */
+    if (!isAllowedFileName(object)) {
+      return;
     }
 
     /* Check file size */
