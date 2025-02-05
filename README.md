@@ -6,8 +6,7 @@
 
 **Details**: Use this extension to export files from your cloud storage bucket to google drive in real-time.
 
-> [!IMPORTANT]
-> **Caution:** Setting cloud functions max instances to more than one might create duplicate folders since Google Drive API takes time to reflect the latest data, hence the API might show no folders exist, when indeed a folder has already been created. For this reason, please use **only one instance**. The default is already set to 1, so no additional configuration is needed.
+> [!IMPORTANT] > **Caution:** Setting cloud functions max instances to more than one might create duplicate folders since Google Drive API takes time to reflect the latest data, hence the API might show no folders exist, when indeed a folder has already been created. For this reason, please use **only one instance**. The default is already set to 1, so no additional configuration is needed.
 
 ## Important Steps
 
@@ -55,6 +54,10 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 - FOLDER_ID: The ID of the folder in google drive where you want to export your files.This can be found in the url after creating or accessing the folder e.g `https://drive.google.com/drive/u/0/folders/{FOLDER_ID}`
 
 - FILE_TYPES: The MIME types of the files you want to upload to Google drive. The most common MIME types can be referenced [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types). This field is `optional` e.g `image/jpeg` or to allow more than one MIME type, please separate each type with a comma e.g `image/jpeg,video/mp4`
+
+- EXCLUDE_FILE_NAME_CONTAINS: Enter words or parts of file names to skip uploading certain files.  
+  If a file name includes any of these, it won't be uploaded.  
+  Example: `_500x500,_200x200`. This field is `optional`.
 
 - MAXIMUM_FILE_SIZE: The maximum file size to upload to google drive in megabytes(MB). e.g `200` This field is `optional`.
 
