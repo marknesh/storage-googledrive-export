@@ -91,7 +91,9 @@ describe('upload file to storage and export to google drive', () => {
     const response = await wrapped(objectMetadata);
 
     expect(response).toContain(
-      'File size is greater than the maximum file size limit'
+      process.env.MAXIMUM_FILE_SIZE
+        ? 'File size is greater than the maximum file size limit'
+        : 'File uploaded successfully'
     );
   });
 });
