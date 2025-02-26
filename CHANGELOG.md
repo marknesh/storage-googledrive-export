@@ -73,3 +73,7 @@
 ## Version 2.0.1
 
 - Added configuration option to exclude certain file names e.g `_500x500`
+
+## Version 2.0.2
+
+- Updated docs
