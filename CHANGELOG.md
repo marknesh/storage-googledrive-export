@@ -77,3 +77,7 @@
 ## Version 2.0.2
 
 - Updated docs
+
+## Version 2.0.3
+
+- Added documentation for large file uploads
