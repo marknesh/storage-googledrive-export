@@ -10,7 +10,7 @@
 
 ## Large File Uploads
 
-For large file uploads that may exceed the Cloud Function 9-minute timeout limit, we recommend using a [cloud run job](https://github.com/marknesh/firebase-storage-to-google-drive) which supports longer execution times.
+For large file uploads that may exceed the Cloud Function 9-minute timeout limit, we recommend using this [cloud run job](https://github.com/marknesh/firebase-storage-to-google-drive) which supports longer execution times.
 
 ## Important Steps
 
