@@ -43,16 +43,6 @@ resources:
       maxInstances: 1
       timeout: 540s
 
-  - name: uploadtoDriveOnInstall
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Function that exports all existing files to google drive after install is complete (Optional).
-    properties:
-      location: ${param:LOCATION}
-      runtime: nodejs18
-      taskQueueTrigger: {}
-      timeout: 540s
-
   - name: fileTask
     type: firebaseextensions.v1beta.function
     description: >-
@@ -121,19 +111,6 @@ params:
     type: string
     required: false
     immutable: false
-
-  - param: UPLOAD_EXISTING_FILES
-    label: Upload existing files to Google drive?
-    description: >-
-      Do you want to upload the existing files in your storage bucket to Google drive?
-    type: select
-    required: true
-    immutable: true
-    options:
-      - label: Yes
-        value: true
-      - label: No
-        value: false
 
   - param: USE_FOLDER_STRUCTURE
     label: Do you want to use the existing folder structure?
@@ -211,8 +188,3 @@ params:
 events:
   - type: mark.storage-googledrive-export.v1.complete
     description: Occurs when uploading to google drive completes.
-
-lifecycleEvents:
-  onInstall:
-    function: uploadtoDriveOnInstall
-    processingMessage: Uploading existing files to Google drive

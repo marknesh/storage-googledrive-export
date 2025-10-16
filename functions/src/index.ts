@@ -1,11 +1,6 @@
 import { getEventarc } from 'firebase-admin/eventarc';
-import { getExtensions } from 'firebase-admin/extensions';
-import { getFunctions } from 'firebase-admin/functions';
-import { getStorage } from 'firebase-admin/storage';
 import * as functions from 'firebase-functions/v1';
 import {
-  authorizeAndUploadFile,
-  cachedDriveFolders,
   checkFileSizeLimit,
   checkFileType,
   checkFolderCreation,
@@ -13,13 +8,12 @@ import {
   isAllowedFileName,
   isAllowedFolder,
 } from './utils';
+import { authorizeAndUploadFile } from './utils/upload';
 
-const storage = getStorage();
-
-const BUCKET_NAME = process.env.BUCKET_NAME;
 const FOLDER_PATH = process.env.FOLDER_PATH?.trim();
-const UPLOAD_EXISTING_FILES = process.env.UPLOAD_EXISTING_FILES;
+
 const USE_FOLDER_STRUCTURE = process.env.USE_FOLDER_STRUCTURE;
+
 const eventChannel =
   process.env.EVENTARC_CHANNEL &&
   getEventarc().channel(process.env.EVENTARC_CHANNEL, {
@@ -84,8 +78,6 @@ export const exportToDrive = functions.storage
 
       const response = await authorizeAndUploadFile(object);
 
-      cachedDriveFolders.length = 0;
-
       return eventChannel
         ? await eventChannel.publish({
             type: 'mark.storage-googledrive-export.v1.complete',
@@ -95,81 +87,4 @@ export const exportToDrive = functions.storage
           })
         : response;
     }
-  });
-
-exports.fileTask = functions.tasks.taskQueue().onDispatch(async (data) => {
-  return authorizeAndUploadFile(data.file, true);
-});
-
-export const uploadtoDriveOnInstall = functions.tasks
-  .taskQueue()
-  .onDispatch(async () => {
-    if (UPLOAD_EXISTING_FILES === 'false') {
-      return getExtensions()
-        .runtime()
-        .setProcessingState(
-          'PROCESSING_COMPLETE',
-          'Upload of existing files skipped.'
-        );
-    }
-
-    return storage
-      .bucket(BUCKET_NAME)
-      .getFiles()
-      .then(async (files) => {
-        if (files[0].length > 0) {
-          const [files] = await storage.bucket(BUCKET_NAME).getFiles();
-
-          for (const file of files) {
-            const result = checkFolderCreation(file.metadata);
-            if (result !== 'File exists') {
-              continue;
-            }
-
-            const queue = getFunctions().taskQueue(
-              `ext-${process.env.EXT_INSTANCE_ID}-fileTask`
-            );
-
-            await queue.enqueue({ file }, { scheduleDelaySeconds: 10 });
-          }
-
-          cachedDriveFolders.length = 0;
-
-          getExtensions()
-            .runtime()
-            .setProcessingState(
-              'PROCESSING_COMPLETE',
-              'Upload of existing files complete.'
-            );
-
-          const existingFiles = files.map((file) => {
-            return {
-              id: file.id,
-              name: file.name,
-              bucket: file.bucket,
-              contentType: file.metadata.contentType,
-              mediaLink: file.metadata.mediaLink,
-              size: file.metadata.size,
-              selfLink: file.metadata.selfLink,
-            };
-          });
-
-          return (
-            eventChannel &&
-            (await eventChannel.publish({
-              type: 'mark.storage-googledrive-export.v1.complete',
-              data: {
-                existingFiles,
-              },
-            }))
-          );
-        } else {
-          functions.logger.log('No existing files found');
-          return 'No files found';
-        }
-      })
-      .catch((error) => {
-        functions.logger.warn(error.message);
-        return error.message;
-      });
   });

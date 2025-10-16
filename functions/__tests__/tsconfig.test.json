@@ -3,12 +3,12 @@
     "module": "commonjs",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "outDir": "../lib",
+    "noEmit": true,
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
     "types": ["node", "jest"]
   },
   "compileOnSave": true,
-  "include": ["./index.test.ts", "../types.d.ts"]
+  "include": ["index.test.ts"]
 }

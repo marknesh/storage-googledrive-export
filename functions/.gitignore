@@ -10,5 +10,7 @@ typings/
 
 node_modules/
 
-integration-tests/extensions/
+firebase-config/extensions/
 service.json
+
+
