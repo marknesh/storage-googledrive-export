@@ -21,6 +21,7 @@ module.exports = {
   },
   ignorePatterns: [
     '/lib/**/*', // Ignore built files.
+    '__tests__/tsconfig.*.json',
     '__tests__/tsconfig.json',
     '__tests__/setup.js',
   ],
