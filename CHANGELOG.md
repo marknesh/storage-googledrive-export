@@ -81,3 +81,7 @@
 ## Version 2.0.3
 
 - Added documentation for large file uploads
+
+## Version 2.1.0
+
+- Removed upload of existing existing files
