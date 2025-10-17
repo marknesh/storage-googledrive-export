@@ -78,7 +78,7 @@ export const exportToDrive = functions.storage
       }
 
       const queue = getFunctions().taskQueue(
-        `locations/${process.env.FUNCTION_REGION}/functions/ext-${process.env.EXT_INSTANCE_ID}-fileTask`
+        `locations/${process.env.LOCATION}/functions/ext-${process.env.EXT_INSTANCE_ID}-fileTask`
       );
 
       // Since Google Drive API takes time to reflect the latest data,
