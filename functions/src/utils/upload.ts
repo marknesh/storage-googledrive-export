@@ -121,7 +121,7 @@ export const createSubFolders = async (
 
   let response;
 
-  for (const folder of folders) {
+  for (const [index, folder] of folders.entries()) {
     const driveFolders = await drive.files.list({
       q: `name='${folder}' and mimeType='application/vnd.google-apps.folder' and '${currentParentId}' in parents and trashed=false`,
     });
@@ -148,6 +148,9 @@ export const createSubFolders = async (
 
       if (driveResponse?.data?.id) {
         currentParentId = driveResponse?.data?.id;
+      }
+
+      if (driveResponse?.data?.id && index === 0) {
         response = await drive.permissions.create({
           fields: 'id',
           fileId: currentParentId,

@@ -84,12 +84,15 @@ export const exportToDrive = functions.storage
       // Since Google Drive API takes time to reflect the latest data,
       // the API might show no folders exist, when indeed a folder has already been created.
       // To prevent this, we use queue with a slight delay.
-      const response = await queue.enqueue(
-        { file: object },
-        {
-          scheduleDelaySeconds: 10,
-        }
-      );
+      const response =
+        process.env.FUNCTIONS_EMULATOR === 'true'
+          ? await authorizeAndUploadFile(object)
+          : await queue.enqueue(
+              { file: object },
+              {
+                scheduleDelaySeconds: 10,
+              }
+            );
 
       return eventChannel
         ? await eventChannel.publish({
