@@ -1,4 +1,5 @@
 import { getEventarc } from 'firebase-admin/eventarc';
+import { getFunctions } from 'firebase-admin/functions';
 import * as functions from 'firebase-functions/v1';
 import {
   checkFileSizeLimit,
@@ -76,7 +77,19 @@ export const exportToDrive = functions.storage
         return result;
       }
 
-      const response = await authorizeAndUploadFile(object);
+      const queue = getFunctions().taskQueue(
+        `locations/${process.env.FUNCTION_REGION}/functions/ext-${process.env.EXT_INSTANCE_ID}-fileTask`
+      );
+
+      // Since Google Drive API takes time to reflect the latest data,
+      // the API might show no folders exist, when indeed a folder has already been created.
+      // To prevent this, we use queue with a slight delay.
+      const response = await queue.enqueue(
+        { file: object },
+        {
+          scheduleDelaySeconds: 10,
+        }
+      );
 
       return eventChannel
         ? await eventChannel.publish({
@@ -88,3 +101,7 @@ export const exportToDrive = functions.storage
         : response;
     }
   });
+
+exports.fileTask = functions.tasks.taskQueue().onDispatch(async (data) => {
+  return authorizeAndUploadFile(data.file);
+});

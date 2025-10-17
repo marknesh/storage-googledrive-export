@@ -43,6 +43,20 @@ resources:
       maxInstances: 1
       timeout: 540s
 
+  - name: fileTask
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Function that exports all existing
+    properties:
+      location: ${param:LOCATION}
+      runtime: nodejs18
+      taskQueueTrigger:
+        rateLimits:
+          maxConcurrentDispatches: 1
+        retryConfig:
+          maxBackoffSeconds: 60
+      timeout: 540s
+
 params:
   - param: BUCKET_NAME
     label: Cloud Storage bucket
