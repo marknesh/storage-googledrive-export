@@ -1,13 +1,12 @@
 /*
- * Before testing, please create a .env file inside the integrations folder.
- * An example .env file is also in the integrations folder
+ * Before testing, please create a .env file inside the firebase-config folder.
+ * An example .env file is also in the firebase-config folder
  *
  */
 import { getStorage } from 'firebase-admin/storage';
 import * as functions from 'firebase-functions-test';
 import { WrappedFunction } from 'firebase-functions-test/lib/v1';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
-import 'jest';
 import { exportToDrive } from '../src/index';
 
 const storage = getStorage();
