@@ -6,12 +6,10 @@
 
 **Details**: Use this extension to export files from your cloud storage bucket to google drive in real-time.
 
-> [!IMPORTANT]
-> **Caution:** Setting cloud functions max instances to more than one might create duplicate folders since Google Drive API takes time to reflect the latest data, hence the API might show no folders exist, when indeed a folder has already been created. For this reason, please use **only one instance**. The default is already set to 1, so no additional configuration is needed.
-
-## Large File Uploads
-
-For large file uploads that may exceed the Cloud Function 9-minute timeout limit, we recommend using this [cloud run job](https://github.com/marknesh/firebase-storage-to-google-drive) which supports longer execution times.
+> [!WARNING]
+> This repository has been **archived** because service accounts no longer have a storage quota for uploading files to Drive.
+>
+> To continue using this functionality, switch to **Shared Drives**, which are fully supported in this [repository](https://github.com/marknesh/firebase-storage-to-google-drive).
 
 ## Important Steps
 
