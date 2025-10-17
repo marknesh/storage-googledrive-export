@@ -1,5 +1,6 @@
 import { FileMetadata } from '@google-cloud/storage';
 import axios from 'axios';
+import { initializeApp } from 'firebase-admin/app';
 import { getDownloadURL, getStorage } from 'firebase-admin/storage';
 import * as functions from 'firebase-functions';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
@@ -13,7 +14,11 @@ import {
 } from '../utils/params';
 import { authorize } from './auth';
 
+const app = initializeApp();
+functions.logger.warn(app);
+
 const storage = getStorage();
+console.log(storage);
 
 let currentParentId: string = FOLDER_ID;
 

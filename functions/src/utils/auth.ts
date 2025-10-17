@@ -1,10 +1,5 @@
-import { initializeApp } from 'firebase-admin/app';
 import { google } from 'googleapis';
-
-initializeApp();
-
-const GOOGLE_APPLICATION_CREDENTIALS =
-  process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim();
+import { GOOGLE_APPLICATION_CREDENTIALS } from './params';
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
@@ -15,6 +10,7 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
  *
  */
 export async function authorize() {
+  console.log(GOOGLE_APPLICATION_CREDENTIALS);
   const JWTClient = new google.auth.JWT({
     scopes: SCOPES,
     keyFile: GOOGLE_APPLICATION_CREDENTIALS,
