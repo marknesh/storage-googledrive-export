@@ -15,7 +15,7 @@ import {
 import { authorize } from './auth';
 
 const app = initializeApp();
-functions.logger.warn(app);
+functions.logger.warn(app, 'nice');
 
 const storage = getStorage();
 console.log(storage);

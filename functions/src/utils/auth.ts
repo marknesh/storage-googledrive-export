@@ -11,7 +11,7 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
  */
 export async function authorize() {
   console.log(GOOGLE_APPLICATION_CREDENTIALS);
-  const JWTClient = new google.auth.JWT({
+  const JWTClient = await google.auth.getClient({
     scopes: SCOPES,
     keyFile: GOOGLE_APPLICATION_CREDENTIALS,
   });
