@@ -5,8 +5,8 @@
     "lint:fix": "eslint \"src/**/*\" --fix",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "tsc && cd __tests__ && tsc && cd ../integration-tests && firebase emulators:exec 'jest --detectOpenHandles' --project demo-test",
-    "dev": "cd integration-tests && npm run build:watch | firebase emulators:start --project demo-test",
+    "test": "tsc && cd __tests__ && tsc && cd ../firebase-config && firebase emulators:exec 'jest --detectOpenHandles' --project demo-test",
+    "dev": "cd firebase-config && npm run build:watch | firebase emulators:start --project demo-test",
     "prettier": "prettier --write .",
     "prepare": "cd .. && husky install"
   },
