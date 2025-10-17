@@ -1,6 +1,5 @@
 import { FileMetadata } from '@google-cloud/storage';
 import { config } from 'dotenv';
-import { initializeApp } from 'firebase-admin/app';
 import * as functions from 'firebase-functions';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import {
@@ -9,8 +8,6 @@ import {
   MAXIMUM_FILE_SIZE,
   USE_FOLDER_STRUCTURE,
 } from '../utils/params';
-
-initializeApp();
 
 // config is only used when testing
 config();
